@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint .",
+    "lint": "eslint . --fix --cache",
     "clean": "rm -rf ./dist",
     "start": "tsc && node ./dist/index.js",
     "dev": "tsc && node ./dist/index.js",
@@ -25,7 +25,8 @@
   "lint-staged": {
     "*": [
       "prettier --ignore-unknown --write"
-    ]
+    ],
+    "*.ts": "eslint --fix"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.11.0",
