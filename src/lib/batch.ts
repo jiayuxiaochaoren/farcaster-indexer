@@ -1,14 +1,14 @@
-import { Message } from "@farcaster/hub-nodejs";
-import Bottleneck from "bottleneck";
+import { Message } from '@farcaster/hub-nodejs';
+import Bottleneck from 'bottleneck';
 
-import { deleteCasts, insertCasts } from "../api/cast.js";
-import { deleteLinks, insertLinks } from "../api/link.js";
-import { deleteReactions, insertReactions } from "../api/reaction.js";
-import { insertUserDatas } from "../api/user-data.js";
+import { deleteCasts, insertCasts } from '../api/cast.js';
+import { deleteLinks, insertLinks } from '../api/link.js';
+import { deleteReactions, insertReactions } from '../api/reaction.js';
+import { insertUserDatas } from '../api/user-data.js';
 import {
   deleteVerifications,
   insertVerifications,
-} from "../api/verification.js";
+} from '../api/verification.js';
 
 export function createBatcher<T>(
   callback: (msgs: T[]) => Promise<void>,
@@ -21,7 +21,7 @@ export function createBatcher<T>(
     },
   );
 
-  batcher.on("batch", async (msgs) => await callback(msgs));
+  batcher.on('batch', async (msgs) => await callback(msgs));
 
   return batcher;
 }

@@ -1,6 +1,6 @@
-import { HubEvent, HubEventType, MessageType } from "@farcaster/hub-nodejs";
+import { HubEvent, HubEventType, MessageType } from '@farcaster/hub-nodejs';
 
-import { insertEvent } from "../api/event.js";
+import { insertEvent } from '../api/event.js';
 import {
   castAddBatcher,
   castRemoveBatcher,
@@ -11,9 +11,9 @@ import {
   userDataAddBatcher,
   verificationAddBatcher,
   verificationRemoveBatcher,
-} from "./batch.js";
-import { client } from "./client.js";
-import { log } from "./logger.js";
+} from './batch.js';
+import { client } from './client.js';
+import { log } from './logger.js';
 
 /**
  * Update the database based on the event type
@@ -57,7 +57,7 @@ export function handleEvent(event: HubEvent) {
           linkRemoveBatcher.add(msg);
           break;
         default:
-          log.debug("UNHANDLED MERGE_MESSAGE EVENT", event.id);
+          log.debug('UNHANDLED MERGE_MESSAGE EVENT', event.id);
           break;
       }
 
@@ -74,7 +74,7 @@ export function handleEvent(event: HubEvent) {
       // TODO: index signers (storage and fids are less relevant for now)
       break;
     default:
-      log.debug("UNHANDLED HUB EVENT", event.id);
+      log.debug('UNHANDLED HUB EVENT', event.id);
       break;
   }
 }
@@ -87,13 +87,13 @@ export async function saveCurrentEventId() {
   });
 
   if (result.isErr()) {
-    log.error(result.error, "Error starting stream");
+    log.error(result.error, 'Error starting stream');
     return;
   }
 
   result.match(
     (stream) => {
-      stream.on("data", async (e: HubEvent) => {
+      stream.on('data', async (e: HubEvent) => {
         if (triggered) return;
 
         triggered = true;
@@ -104,7 +104,7 @@ export async function saveCurrentEventId() {
       });
     },
     (e) => {
-      log.error(e, "Error streaming data.");
+      log.error(e, 'Error streaming data.');
     },
   );
 }

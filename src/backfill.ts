@@ -1,6 +1,6 @@
-import { FidRequest } from "@farcaster/hub-nodejs";
-import { Presets, SingleBar } from "cli-progress";
-import "dotenv/config";
+import { FidRequest } from '@farcaster/hub-nodejs';
+import { Presets, SingleBar } from 'cli-progress';
+import 'dotenv/config';
 
 import {
   castAddBatcher,
@@ -8,12 +8,12 @@ import {
   reactionAddBatcher,
   userDataAddBatcher,
   verificationAddBatcher,
-} from "./lib/batch.js";
-import { client } from "./lib/client.js";
-import { saveCurrentEventId } from "./lib/event.js";
-import { log } from "./lib/logger.js";
-import { getAllCastsByFid, getAllReactionsByFid } from "./lib/paginate.js";
-import { checkMessages } from "./lib/utils.js";
+} from './lib/batch.js';
+import { client } from './lib/client.js';
+import { saveCurrentEventId } from './lib/event.js';
+import { log } from './lib/logger.js';
+import { getAllCastsByFid, getAllReactionsByFid } from './lib/paginate.js';
+import { checkMessages } from './lib/utils.js';
 
 const progressBar = new SingleBar({ fps: 1 }, Presets.shades_classic);
 
@@ -28,7 +28,7 @@ export async function backfill({
   // Save the current event ID so we can start from there after backfilling
   await saveCurrentEventId();
 
-  log.info("Backfilling...");
+  log.info('Backfilling...');
   const startTime = new Date().getTime();
   const allFids = await getAllFids();
   progressBar.start(maxFid || allFids.length, allFids[0]);
@@ -96,7 +96,7 @@ async function getAllFids(): Promise<ReadonlyArray<number>> {
   });
 
   if (maxFidResult.isErr()) {
-    throw new Error("Unable to backfill", { cause: maxFidResult.error });
+    throw new Error('Unable to backfill', { cause: maxFidResult.error });
   }
 
   const maxFid = maxFidResult.value.fids[0];

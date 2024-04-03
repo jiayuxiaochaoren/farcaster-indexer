@@ -1,8 +1,8 @@
-import { Message, fromFarcasterTime } from "@farcaster/hub-nodejs";
+import { Message, fromFarcasterTime } from '@farcaster/hub-nodejs';
 
-import { db } from "../db/kysely.js";
-import { log } from "../lib/logger.js";
-import { formatVerifications } from "../lib/utils.js";
+import { db } from '../db/kysely.js';
+import { log } from '../lib/logger.js';
+import { formatVerifications } from '../lib/utils.js';
 
 /**
  * Insert a new verification in the database
@@ -13,14 +13,14 @@ export async function insertVerifications(msgs: Message[]) {
 
   try {
     await db
-      .insertInto("verifications")
+      .insertInto('verifications')
       .values(verifications)
-      .onConflict((oc) => oc.columns(["fid", "signerAddress"]).doNothing())
+      .onConflict((oc) => oc.columns(['fid', 'signerAddress']).doNothing())
       .execute();
 
     log.debug(`VERIFICATIONS INSERTED`);
   } catch (error) {
-    log.error(error, "ERROR INSERTING VERIFICATION");
+    log.error(error, 'ERROR INSERTING VERIFICATION');
   }
 }
 
@@ -36,20 +36,20 @@ export async function deleteVerifications(msgs: Message[]) {
         const address = data.verificationRemoveBody!.address;
 
         await transaction
-          .updateTable("verifications")
+          .updateTable('verifications')
           .set({
             deletedAt: new Date(
               fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
             ),
           })
-          .where("signerAddress", "=", address)
-          .where("fid", "=", data.fid)
+          .where('signerAddress', '=', address)
+          .where('fid', '=', data.fid)
           .execute();
       }
     });
 
-    log.debug("VERIFICATIONS DELETED");
+    log.debug('VERIFICATIONS DELETED');
   } catch (error) {
-    log.error(error, "ERROR DELETING VERIFICATION");
+    log.error(error, 'ERROR DELETING VERIFICATION');
   }
 }

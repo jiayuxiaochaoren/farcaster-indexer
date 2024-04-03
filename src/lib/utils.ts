@@ -4,11 +4,11 @@ import {
   MessagesResponse,
   OnChainEvent,
   fromFarcasterTime,
-} from "@farcaster/hub-nodejs";
-import { Insertable } from "kysely";
+} from '@farcaster/hub-nodejs';
+import { Insertable } from 'kysely';
 
-import { Tables } from "../db/db.types.js";
-import { log } from "./logger.js";
+import { Tables } from '../db/db.types.js';
+import { log } from './logger.js';
 
 export function formatCasts(msgs: Message[]) {
   return msgs.map((msg) => {
@@ -27,7 +27,7 @@ export function formatCasts(msgs: Message[]) {
       embeds: JSON.stringify(castAddBody.embeds),
       mentions: JSON.stringify(castAddBody.mentions),
       mentionsPositions: JSON.stringify(castAddBody.mentionsPositions),
-    } satisfies Insertable<Tables["casts"]>;
+    } satisfies Insertable<Tables['casts']>;
   });
 }
 
@@ -45,7 +45,7 @@ export function formatReactions(msgs: Message[]) {
       hash: msg.hash,
       targetCastHash: reaction.targetCastId?.hash,
       targetUrl: reaction.targetUrl,
-    } satisfies Insertable<Tables["reactions"]>;
+    } satisfies Insertable<Tables['reactions']>;
   });
 }
 
@@ -71,7 +71,7 @@ export function formatUserDatas(msgs: Message[]) {
       type: userDataAddBody.type,
       hash: msg.hash,
       value: userDataAddBody.value,
-    } satisfies Insertable<Tables["userData"]>;
+    } satisfies Insertable<Tables['userData']>;
   });
 }
 
@@ -88,7 +88,7 @@ export function formatVerifications(msgs: Message[]) {
       signerAddress: addAddressBody.address,
       blockHash: addAddressBody.blockHash,
       signature: addAddressBody.claimSignature,
-    } satisfies Insertable<Tables["verifications"]>;
+    } satisfies Insertable<Tables['verifications']>;
   });
 }
 
@@ -107,7 +107,7 @@ export function formatLinks(msgs: Message[]) {
         : null,
       type: link.type,
       hash: msg.hash,
-    } satisfies Insertable<Tables["links"]>;
+    } satisfies Insertable<Tables['links']>;
   });
 }
 

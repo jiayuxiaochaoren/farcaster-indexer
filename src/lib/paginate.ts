@@ -1,8 +1,8 @@
 // TODO: Clean up the functions in this file, it's very repetitive
-import { FidRequest, Message } from "@farcaster/hub-nodejs";
+import { FidRequest, Message } from '@farcaster/hub-nodejs';
 
-import { client } from "./client.js";
-import { checkMessages } from "./utils.js";
+import { client } from './client.js';
+import { checkMessages } from './utils.js';
 
 export async function getAllCastsByFid(
   fid: FidRequest,

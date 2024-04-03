@@ -1,9 +1,9 @@
-import { HubEvent, HubEventType } from "@farcaster/hub-nodejs";
+import { HubEvent, HubEventType } from '@farcaster/hub-nodejs';
 
-import { insertEvent } from "../api/event.js";
-import { client } from "./client.js";
-import { handleEvent } from "./event.js";
-import { log } from "./logger.js";
+import { insertEvent } from '../api/event.js';
+import { client } from './client.js';
+import { handleEvent } from './event.js';
+import { log } from './logger.js';
 
 let latestEventId: number | undefined;
 
@@ -23,30 +23,30 @@ export async function subscribe(fromId: number | undefined) {
   });
 
   if (result.isErr()) {
-    log.error(result.error, "Error starting stream");
+    log.error(result.error, 'Error starting stream');
     return;
   }
 
   result.match(
     (stream) => {
-      log.info(`Subscribed to stream ${fromId ? `from event ${fromId}` : ""}`);
+      log.info(`Subscribed to stream ${fromId ? `from event ${fromId}` : ''}`);
 
-      stream.on("data", async (e: HubEvent) => {
+      stream.on('data', async (e: HubEvent) => {
         // Keep track of latest event so we can pick up where we left off if the stream is interrupted
         latestEventId = e.id;
         await handleEvent(e);
       });
 
-      stream.on("close", () => {
+      stream.on('close', () => {
         log.warn(`Hub stream closed`);
       });
 
-      stream.on("end", () => {
+      stream.on('end', () => {
         log.warn(`Hub stream ended`);
       });
     },
     (e) => {
-      log.error(e, "Error streaming data.");
+      log.error(e, 'Error streaming data.');
     },
   );
 }
@@ -63,20 +63,20 @@ async function handleShutdownSignal(signalName: NodeJS.Signals) {
     log.info(`Latest event ID: ${latestEventId}`);
     await insertEvent(latestEventId);
   } else {
-    log.warn("No hub event in cache");
+    log.warn('No hub event in cache');
   }
 
   process.exit(0);
 }
 
-process.on("SIGINT", async () => {
-  await handleShutdownSignal("SIGINT");
+process.on('SIGINT', async () => {
+  await handleShutdownSignal('SIGINT');
 });
 
-process.on("SIGTERM", async () => {
-  await handleShutdownSignal("SIGTERM");
+process.on('SIGTERM', async () => {
+  await handleShutdownSignal('SIGTERM');
 });
 
-process.on("SIGQUIT", async () => {
-  await handleShutdownSignal("SIGQUIT");
+process.on('SIGQUIT', async () => {
+  await handleShutdownSignal('SIGQUIT');
 });

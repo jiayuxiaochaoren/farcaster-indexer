@@ -1,10 +1,10 @@
-import { CamelCasePlugin, Kysely, PostgresDialect } from "kysely";
-import Pool from "pg-pool";
+import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely';
+import Pool from 'pg-pool';
 
-import { Tables } from "./db.types";
+import { Tables } from './db.types';
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set");
+  throw new Error('DATABASE_URL is not set');
 }
 
 export const db = new Kysely<Tables>({

@@ -15,6 +15,7 @@
     "prepare": "husky install"
   },
   "prettier": {
+    "singleQuote": true,
     "plugins": [
       "prettier-plugin-organize-imports"
     ]

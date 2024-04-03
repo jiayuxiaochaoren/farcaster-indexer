@@ -1,11 +1,11 @@
-import "dotenv/config";
-import { promises as fs } from "fs";
-import { FileMigrationProvider, Migrator } from "kysely";
-import * as path from "path";
-import { fileURLToPath } from "url";
+import 'dotenv/config';
+import { promises as fs } from 'fs';
+import { FileMigrationProvider, Migrator } from 'kysely';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 
-import { log } from "../lib/logger.js";
-import { db } from "./kysely.js";
+import { log } from '../lib/logger.js';
+import { db } from './kysely.js';
 
 async function migrateToLatest() {
   const migrator = new Migrator({
@@ -15,7 +15,7 @@ async function migrateToLatest() {
       path,
       migrationFolder: path.join(
         path.dirname(fileURLToPath(import.meta.url)),
-        "migrations",
+        'migrations',
       ),
     }),
   });
@@ -23,15 +23,15 @@ async function migrateToLatest() {
   const { error, results } = await migrator.migrateToLatest();
 
   results?.forEach((it) => {
-    if (it.status === "Success") {
+    if (it.status === 'Success') {
       log.info(`Migration "${it.migrationName}" was executed successfully`);
-    } else if (it.status === "Error") {
+    } else if (it.status === 'Error') {
       log.error(`Failed to execute migration "${it.migrationName}"`);
     }
   });
 
   if (error) {
-    log.error(error, "Failed to migrate");
+    log.error(error, 'Failed to migrate');
     process.exit(1);
   }
 
