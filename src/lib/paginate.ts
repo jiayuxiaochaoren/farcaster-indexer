@@ -4,7 +4,9 @@ import { FidRequest, Message } from '@farcaster/hub-nodejs'
 import { client } from './client.js'
 import { checkMessages } from './utils.js'
 
-export async function getAllCastsByFid(fid: FidRequest) {
+export async function getAllCastsByFid(
+  fid: FidRequest
+): Promise<ReadonlyArray<Message>> {
   const pageSize = 10_000
   const casts: Message[] = new Array()
   let nextPageToken: Uint8Array | undefined
@@ -29,7 +31,9 @@ export async function getAllCastsByFid(fid: FidRequest) {
   return casts
 }
 
-export async function getAllReactionsByFid(fid: FidRequest) {
+export async function getAllReactionsByFid(
+  fid: FidRequest
+): Promise<ReadonlyArray<Message>> {
   const pageSize = 10_000
   const reactions: Message[] = new Array()
   let nextPageToken: Uint8Array | undefined

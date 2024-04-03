@@ -30,12 +30,12 @@ export async function insertVerifications(msgs: Message[]) {
  */
 export async function deleteVerifications(msgs: Message[]) {
   try {
-    await db.transaction().execute(async (trx) => {
+    await db.transaction().execute(async (transaction) => {
       for (const msg of msgs) {
         const data = msg.data!
         const address = data.verificationRemoveBody!.address
 
-        await trx
+        await transaction
           .updateTable('verifications')
           .set({
             deletedAt: new Date(

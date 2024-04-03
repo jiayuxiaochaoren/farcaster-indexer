@@ -52,7 +52,7 @@ export async function subscribe(fromId: number | undefined) {
 }
 
 // Handle graceful shutdown and log the latest event ID
-async function handleShutdownSignal(signalName: string) {
+async function handleShutdownSignal(signalName: NodeJS.Signals) {
   client.close()
   log.info(`${signalName} received`)
 

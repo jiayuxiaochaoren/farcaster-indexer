@@ -20,7 +20,11 @@ const progressBar = new SingleBar({ fps: 1 }, Presets.shades_classic)
 /**
  * Backfill the database with data from a hub. This may take a while.
  */
-export async function backfill({ maxFid }: { maxFid?: number | undefined }) {
+export async function backfill({
+  maxFid,
+}: {
+  maxFid?: number | undefined
+}): Promise<void> {
   // Save the current event ID so we can start from there after backfilling
   await saveCurrentEventId()
 
@@ -35,18 +39,17 @@ export async function backfill({ maxFid }: { maxFid?: number | undefined }) {
       break
     }
 
-    const p = await getFullProfileFromHub(fid).catch((err) => {
-      log.error(err, `Error getting profile for FID ${fid}`)
-      return null
-    })
-
-    if (!p) continue
-
-    p.casts.forEach((msg) => castAddBatcher.add(msg))
-    p.links.forEach((msg) => linkAddBatcher.add(msg))
-    p.reactions.forEach((msg) => reactionAddBatcher.add(msg))
-    p.userData.forEach((msg) => userDataAddBatcher.add(msg))
-    p.verifications.forEach((msg) => verificationAddBatcher.add(msg))
+    await getFullProfileFromHub(fid)
+      .then((profile) => {
+        profile.casts.forEach((msg) => castAddBatcher.add(msg))
+        profile.links.forEach((msg) => linkAddBatcher.add(msg))
+        profile.reactions.forEach((msg) => reactionAddBatcher.add(msg))
+        profile.userData.forEach((msg) => userDataAddBatcher.add(msg))
+        profile.verifications.forEach((msg) => verificationAddBatcher.add(msg))
+      })
+      .catch((err) => {
+        log.error(err, `Error getting profile for FID ${fid}`)
+      })
 
     progressBar.increment()
   }
@@ -65,11 +68,13 @@ export async function backfill({ maxFid }: { maxFid?: number | undefined }) {
 async function getFullProfileFromHub(_fid: number) {
   const fid = FidRequest.create({ fid: _fid })
 
-  const casts = await getAllCastsByFid(fid)
-  const reactions = await getAllReactionsByFid(fid)
-  const links = await client.getLinksByFid({ ...fid, reverse: true })
-  const userData = await client.getUserDataByFid(fid)
-  const verifications = await client.getVerificationsByFid(fid)
+  const [casts, reactions, links, userData, verifications] = await Promise.all([
+    getAllCastsByFid(fid),
+    getAllReactionsByFid(fid),
+    client.getLinksByFid({ ...fid, reverse: true }),
+    client.getUserDataByFid(fid),
+    client.getVerificationsByFid(fid),
+  ])
 
   return {
     casts,
@@ -84,7 +89,7 @@ async function getFullProfileFromHub(_fid: number) {
  * Get all fids
  * @returns array of fids
  */
-async function getAllFids() {
+async function getAllFids(): Promise<ReadonlyArray<number>> {
   const maxFidResult = await client.getFids({
     pageSize: 1,
     reverse: true,

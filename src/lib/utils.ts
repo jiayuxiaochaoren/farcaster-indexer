@@ -111,7 +111,7 @@ export function formatLinks(msgs: Message[]) {
   })
 }
 
-export function breakIntoChunks(array: any[], size: number) {
+export function breakIntoChunks<T>(array: T[], size: number) {
   const chunks = []
   for (let i = 0; i < array.length; i += size) {
     chunks.push(array.slice(i, i + size))
