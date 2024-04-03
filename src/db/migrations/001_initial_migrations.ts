@@ -1,4 +1,4 @@
-import { Kysely, sql } from 'kysely';
+import { Kysely, sql } from 'kysely'
 
 /**************************************************************************************************
   Notes about the patterns in this file:
@@ -35,14 +35,14 @@ import { Kysely, sql } from 'kysely';
 
 export const up = async (db: Kysely<unknown>) => {
   // Used for generating random bytes in ULID creation
-  await sql`CREATE EXTENSION IF NOT EXISTS pgcrypto`.execute(db);
+  await sql`CREATE EXTENSION IF NOT EXISTS pgcrypto`.execute(db)
 
   // ULID generation function for creating unique IDs without centralized coordination.
   // Avoids limitations of a monotonic (auto-incrementing) ID.
   await sql`CREATE OR REPLACE FUNCTION generate_ulid() RETURNS uuid
     LANGUAGE sql STRICT PARALLEL SAFE
     RETURN ((lpad(to_hex((floor((EXTRACT(epoch FROM clock_timestamp()) * (1000)::numeric)))::bigint), 12, '0'::text) || encode(public.gen_random_bytes(10), 'hex'::text)))::uuid;
-  `.execute(db);
+  `.execute(db)
 
   // CASTS
   await db.schema
@@ -71,48 +71,48 @@ export const up = async (db: Kysely<unknown>) => {
     .addColumn('mentionsPositions', 'json', (col) =>
       col.notNull().defaultTo(sql`'[]'`),
     )
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('casts_active_fid_timestamp_index')
     .on('casts')
     .columns(['fid', 'timestamp'])
     .where(sql.ref('deleted_at'), 'is', null) // Only index active (non-deleted) casts
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('casts_timestamp_index')
     .on('casts')
     .columns(['timestamp'])
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('casts_parent_hash_index')
     .on('casts')
     .column('parentHash')
     .where('parentHash', 'is not', null)
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('casts_root_parent_hash_index')
     .on('casts')
     .columns(['rootParentHash'])
     .where('rootParentHash', 'is not', null)
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('casts_parent_url_index')
     .on('casts')
     .columns(['parentUrl'])
     .where('parentUrl', 'is not', null)
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('casts_root_parent_url_index')
     .on('casts')
     .columns(['rootParentUrl'])
     .where('rootParentUrl', 'is not', null)
-    .execute();
+    .execute()
 
   // REACTIONS
   await db.schema
@@ -134,28 +134,28 @@ export const up = async (db: Kysely<unknown>) => {
     .addColumn('hash', 'bytea', (col) => col.notNull().unique())
     .addColumn('targetCastHash', 'bytea')
     .addColumn('targetUrl', 'text')
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('reactions_active_fid_timestamp_index')
     .on('reactions')
     .columns(['fid', 'timestamp'])
     .where(sql.ref('deleted_at'), 'is', null) // Only index active (non-deleted) reactions
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('reactions_target_cast_hash_index')
     .on('reactions')
     .column('targetCastHash')
     .where('targetCastHash', 'is not', null)
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('reactions_target_url_index')
     .on('reactions')
     .columns(['targetUrl'])
     .where('targetUrl', 'is not', null)
-    .execute();
+    .execute()
 
   // LINKS
   await db.schema
@@ -176,7 +176,7 @@ export const up = async (db: Kysely<unknown>) => {
     .addColumn('displayTimestamp', 'timestamptz')
     .addColumn('type', 'text', (col) => col.notNull())
     .addColumn('hash', 'bytea', (col) => col.notNull().unique())
-    .execute();
+    .execute()
 
   // VERIFICATIONS
   await db.schema
@@ -201,13 +201,13 @@ export const up = async (db: Kysely<unknown>) => {
       'signerAddress',
       'fid',
     ])
-    .execute();
+    .execute()
 
   await db.schema
     .createIndex('verifications_fid_timestamp_index')
     .on('verifications')
     .columns(['fid', 'timestamp'])
-    .execute();
+    .execute()
 
   // USER DATA
   await db.schema
@@ -228,20 +228,20 @@ export const up = async (db: Kysely<unknown>) => {
     .addColumn('hash', 'bytea', (col) => col.notNull().unique())
     .addColumn('value', 'text', (col) => col.notNull())
     .addUniqueConstraint('user_data_fid_type_unique', ['fid', 'type'])
-    .execute();
+    .execute()
 
   // Events
   await db.schema
     .createTable('events')
     .addColumn('id', 'int8', (col) => col.primaryKey())
-    .execute();
-};
+    .execute()
+}
 
 export const down = async (db: Kysely<unknown>) => {
   // Delete in reverse order of above so that foreign keys are not violated.
-  await db.schema.dropTable('userData').ifExists().execute();
-  await db.schema.dropTable('verifications').ifExists().execute();
-  await db.schema.dropTable('links').ifExists().execute();
-  await db.schema.dropTable('reactions').ifExists().execute();
-  await db.schema.dropTable('casts').ifExists().execute();
-};
+  await db.schema.dropTable('userData').ifExists().execute()
+  await db.schema.dropTable('verifications').ifExists().execute()
+  await db.schema.dropTable('links').ifExists().execute()
+  await db.schema.dropTable('reactions').ifExists().execute()
+  await db.schema.dropTable('casts').ifExists().execute()
+}

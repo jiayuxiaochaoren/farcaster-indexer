@@ -4,17 +4,17 @@ import {
   MessagesResponse,
   OnChainEvent,
   fromFarcasterTime,
-} from '@farcaster/hub-nodejs';
-import { Insertable } from 'kysely';
+} from '@farcaster/hub-nodejs'
+import { Insertable } from 'kysely'
 
-import { Tables } from '../db/db.types.js';
-import { log } from './logger.js';
+import { Tables } from '../db/db.types.js'
+import { log } from './logger.js'
 
 export function formatCasts(msgs: Message[]) {
   return msgs.map((msg) => {
-    const data = msg.data!;
-    const castAddBody = data.castAddBody!;
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap();
+    const data = msg.data!
+    const castAddBody = data.castAddBody!
+    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
       timestamp: new Date(timestamp),
@@ -27,15 +27,15 @@ export function formatCasts(msgs: Message[]) {
       embeds: JSON.stringify(castAddBody.embeds),
       mentions: JSON.stringify(castAddBody.mentions),
       mentionsPositions: JSON.stringify(castAddBody.mentionsPositions),
-    } satisfies Insertable<Tables['casts']>;
-  });
+    } satisfies Insertable<Tables['casts']>
+  })
 }
 
 export function formatReactions(msgs: Message[]) {
   return msgs.map((msg) => {
-    const data = msg.data!;
-    const reaction = data.reactionBody!;
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap();
+    const data = msg.data!
+    const reaction = data.reactionBody!
+    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
       timestamp: new Date(timestamp),
@@ -45,25 +45,25 @@ export function formatReactions(msgs: Message[]) {
       hash: msg.hash,
       targetCastHash: reaction.targetCastId?.hash,
       targetUrl: reaction.targetUrl,
-    } satisfies Insertable<Tables['reactions']>;
-  });
+    } satisfies Insertable<Tables['reactions']>
+  })
 }
 
 export function formatUserDatas(msgs: Message[]) {
   // Users can submit multiple messages with the same `userDataAddBody.type` within the batch period
   // We reconcile this by using the value of the last message with the same type from that fid
-  const userDataMap = new Map<string, Message>();
+  const userDataMap = new Map<string, Message>()
 
   for (const msg of msgs) {
-    const data = msg.data!;
-    const userDataAddBody = data.userDataBody!;
-    userDataMap.set(`fid:${data.fid}-type:${userDataAddBody.type}`, msg);
+    const data = msg.data!
+    const userDataAddBody = data.userDataBody!
+    userDataMap.set(`fid:${data.fid}-type:${userDataAddBody.type}`, msg)
   }
 
   return Array.from(userDataMap.values()).map((msg) => {
-    const data = msg.data!;
-    const userDataAddBody = data.userDataBody!;
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap();
+    const data = msg.data!
+    const userDataAddBody = data.userDataBody!
+    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
       timestamp: new Date(timestamp),
@@ -71,15 +71,15 @@ export function formatUserDatas(msgs: Message[]) {
       type: userDataAddBody.type,
       hash: msg.hash,
       value: userDataAddBody.value,
-    } satisfies Insertable<Tables['userData']>;
-  });
+    } satisfies Insertable<Tables['userData']>
+  })
 }
 
 export function formatVerifications(msgs: Message[]) {
   return msgs.map((msg) => {
-    const data = msg.data!;
-    const addAddressBody = data.verificationAddAddressBody!;
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap();
+    const data = msg.data!
+    const addAddressBody = data.verificationAddAddressBody!
+    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
       timestamp: new Date(timestamp),
@@ -88,15 +88,15 @@ export function formatVerifications(msgs: Message[]) {
       signerAddress: addAddressBody.address,
       blockHash: addAddressBody.blockHash,
       signature: addAddressBody.claimSignature,
-    } satisfies Insertable<Tables['verifications']>;
-  });
+    } satisfies Insertable<Tables['verifications']>
+  })
 }
 
 export function formatLinks(msgs: Message[]) {
   return msgs.map((msg) => {
-    const data = msg.data!;
-    const link = data.linkBody!;
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap();
+    const data = msg.data!
+    const link = data.linkBody!
+    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
       timestamp: new Date(timestamp),
@@ -107,16 +107,16 @@ export function formatLinks(msgs: Message[]) {
         : null,
       type: link.type,
       hash: msg.hash,
-    } satisfies Insertable<Tables['links']>;
-  });
+    } satisfies Insertable<Tables['links']>
+  })
 }
 
 export function breakIntoChunks<T>(array: T[], size: number) {
-  const chunks = [];
+  const chunks = []
   for (let i = 0; i < array.length; i += size) {
-    chunks.push(array.slice(i, i + size));
+    chunks.push(array.slice(i, i + size))
   }
-  return chunks;
+  return chunks
 }
 
 export function checkMessages(
@@ -124,16 +124,16 @@ export function checkMessages(
   fid: number,
 ) {
   if (messages.isErr()) {
-    log.warn(messages.error, `Error fetching messages for FID ${fid}`);
+    log.warn(messages.error, `Error fetching messages for FID ${fid}`)
   }
 
-  return messages.isOk() ? messages.value.messages : [];
+  return messages.isOk() ? messages.value.messages : []
 }
 
 export function checkOnchainEvent(event: HubResult<OnChainEvent>, fid: number) {
   if (event.isErr()) {
-    log.warn(event.error, `Error fetching onchain event for FID ${fid}`);
+    log.warn(event.error, `Error fetching onchain event for FID ${fid}`)
   }
 
-  return event.isOk() ? event.value : null;
+  return event.isOk() ? event.value : null
 }

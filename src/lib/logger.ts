@@ -1,4 +1,4 @@
-import { pino } from 'pino';
+import { pino } from 'pino'
 
 export const log = pino({
   // 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace'
@@ -10,4 +10,4 @@ export const log = pino({
       // singleLine: true,
     },
   },
-});
+})

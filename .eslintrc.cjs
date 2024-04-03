@@ -21,4 +21,4 @@ module.exports = {
     'new-cap': 'error',
     'no-console': 'error',
   },
-};
+}
