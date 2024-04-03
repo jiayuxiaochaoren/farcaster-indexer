@@ -1,5 +1,5 @@
-import { db } from '../db/kysely.js'
-import { log } from '../lib/logger.js'
+import { db } from "../db/kysely.js";
+import { log } from "../lib/logger.js";
 
 /**
  * Insert an event ID in the database
@@ -8,14 +8,14 @@ import { log } from '../lib/logger.js'
 export async function insertEvent(eventId: number) {
   try {
     await db
-      .insertInto('events')
+      .insertInto("events")
       .values({ id: eventId })
-      .onConflict((oc) => oc.column('id').doNothing())
-      .execute()
+      .onConflict((oc) => oc.column("id").doNothing())
+      .execute();
 
-    log.debug(`EVENT INSERTED -- ${eventId}`)
+    log.debug(`EVENT INSERTED -- ${eventId}`);
   } catch (error) {
-    log.error(error, 'ERROR INSERTING EVENT')
+    log.error(error, "ERROR INSERTING EVENT");
   }
 }
 
@@ -26,14 +26,14 @@ export async function insertEvent(eventId: number) {
 export async function getLatestEvent(): Promise<number | undefined> {
   try {
     const event = await db
-      .selectFrom('events')
+      .selectFrom("events")
       .selectAll()
-      .orderBy('id', 'desc')
+      .orderBy("id", "desc")
       .limit(1)
-      .executeTakeFirst()
+      .executeTakeFirst();
 
-    return event?.id
+    return event?.id;
   } catch (error) {
-    log.error(error, 'ERROR GETTING LATEST EVENT')
+    log.error(error, "ERROR GETTING LATEST EVENT");
   }
 }

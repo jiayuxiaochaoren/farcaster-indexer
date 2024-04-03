@@ -1,26 +1,26 @@
-import { Message, fromFarcasterTime } from '@farcaster/hub-nodejs'
+import { Message, fromFarcasterTime } from "@farcaster/hub-nodejs";
 
-import { db } from '../db/kysely.js'
-import { log } from '../lib/logger.js'
-import { formatCasts } from '../lib/utils.js'
+import { db } from "../db/kysely.js";
+import { log } from "../lib/logger.js";
+import { formatCasts } from "../lib/utils.js";
 
 /**
  * Insert casts in the database
  * @param msg Hub event in JSON format
  */
 export async function insertCasts(msgs: Message[]) {
-  const casts = formatCasts(msgs)
+  const casts = formatCasts(msgs);
 
   try {
     await db
-      .insertInto('casts')
+      .insertInto("casts")
       .values(casts)
-      .onConflict((oc) => oc.column('hash').doNothing())
-      .execute()
+      .onConflict((oc) => oc.column("hash").doNothing())
+      .execute();
 
-    log.debug(`CASTS INSERTED`)
+    log.debug(`CASTS INSERTED`);
   } catch (error) {
-    log.error(error, 'ERROR INSERTING CAST')
+    log.error(error, "ERROR INSERTING CAST");
   }
 }
 
@@ -33,22 +33,22 @@ export async function deleteCasts(msgs: Message[]) {
   try {
     await db.transaction().execute(async (trx) => {
       for (const msg of msgs) {
-        const data = msg.data!
+        const data = msg.data!;
 
         await trx
-          .updateTable('casts')
+          .updateTable("casts")
           .set({
             deletedAt: new Date(
-              fromFarcasterTime(data.timestamp)._unsafeUnwrap()
+              fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
             ),
           })
-          .where('hash', '=', data.castRemoveBody?.targetHash!)
-          .execute()
+          .where("hash", "=", data.castRemoveBody?.targetHash!)
+          .execute();
       }
-    })
+    });
 
-    log.debug(`CASTS DELETED`)
+    log.debug(`CASTS DELETED`);
   } catch (error) {
-    log.error(error, 'ERROR DELETING CAST')
+    log.error(error, "ERROR DELETING CAST");
   }
 }

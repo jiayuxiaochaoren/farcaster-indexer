@@ -5,13 +5,19 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "lint": "eslint .",
     "clean": "rm -rf ./dist",
     "start": "tsc && node ./dist/index.js",
     "dev": "tsc && node ./dist/index.js",
     "backfill": "tsc && node ./dist/index.js --backfill",
     "kysely:migrate": "tsc && node ./dist/db/migrator.js",
-    "test": "npm run build",
+    "test": "npm run lint && npm run build",
     "prepare": "husky install"
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-organize-imports"
+    ]
   },
   "lint-staged": {
     "*": [
@@ -31,13 +37,18 @@
     "viem": "^2.7.11"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/cli-progress": "^3.11.5",
     "@types/node": "^20.11.19",
     "@types/pg-pool": "^2.0.6",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
+    "@typescript-eslint/parser": "^7.5.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-only-warn": "^1.1.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
+    "prettier-plugin-organize-imports": "^3.2.4",
     "typescript": "^5.3.3"
   }
 }
