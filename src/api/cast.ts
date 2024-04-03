@@ -39,7 +39,7 @@ export async function deleteCasts(msgs: Message[]) {
           .updateTable('casts')
           .set({
             deletedAt: new Date(
-              fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
+              fromFarcasterTime(data.timestamp)._unsafeUnwrap()
             ),
           })
           .where('hash', '=', data.castRemoveBody?.targetHash!)

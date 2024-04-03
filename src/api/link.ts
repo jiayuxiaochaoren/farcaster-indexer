@@ -30,7 +30,7 @@ export async function deleteLinks(msgs: Message[]) {
           .updateTable('links')
           .set({
             deletedAt: new Date(
-              fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
+              fromFarcasterTime(data.timestamp)._unsafeUnwrap()
             ),
           })
           .where('fid', '=', data.fid)

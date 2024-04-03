@@ -47,7 +47,7 @@ export async function subscribe(fromId: number | undefined) {
     },
     (e) => {
       log.error(e, 'Error streaming data.')
-    },
+    }
   )
 }
 

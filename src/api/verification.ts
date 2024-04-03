@@ -39,7 +39,7 @@ export async function deleteVerifications(msgs: Message[]) {
           .updateTable('verifications')
           .set({
             deletedAt: new Date(
-              fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
+              fromFarcasterTime(data.timestamp)._unsafeUnwrap()
             ),
           })
           .where('signerAddress', '=', address)

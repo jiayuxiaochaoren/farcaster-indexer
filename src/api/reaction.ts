@@ -36,7 +36,7 @@ export async function deleteReactions(msgs: Message[]) {
             .updateTable('reactions')
             .set({
               deletedAt: new Date(
-                fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
+                fromFarcasterTime(data.timestamp)._unsafeUnwrap()
               ),
             })
             .where('fid', '=', data.fid)
@@ -48,7 +48,7 @@ export async function deleteReactions(msgs: Message[]) {
             .updateTable('reactions')
             .set({
               deletedAt: new Date(
-                fromFarcasterTime(data.timestamp)._unsafeUnwrap(),
+                fromFarcasterTime(data.timestamp)._unsafeUnwrap()
               ),
             })
             .where('fid', '=', data.fid)

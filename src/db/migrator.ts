@@ -15,7 +15,7 @@ async function migrateToLatest() {
       path,
       migrationFolder: path.join(
         path.dirname(fileURLToPath(import.meta.url)),
-        'migrations',
+        'migrations'
       ),
     }),
   })

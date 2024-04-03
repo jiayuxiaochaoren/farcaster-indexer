@@ -121,7 +121,7 @@ export function breakIntoChunks<T>(array: T[], size: number) {
 
 export function checkMessages(
   messages: HubResult<MessagesResponse>,
-  fid: number,
+  fid: number
 ) {
   if (messages.isErr()) {
     log.warn(messages.error, `Error fetching messages for FID ${fid}`)

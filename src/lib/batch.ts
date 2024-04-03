@@ -12,13 +12,13 @@ import {
 
 export function createBatcher<T>(
   callback: (msgs: T[]) => Promise<void>,
-  options?: Bottleneck.BatcherOptions,
+  options?: Bottleneck.BatcherOptions
 ) {
   const batcher = new Bottleneck.Batcher(
     options || {
       maxTime: 10_000,
       maxSize: 1_000,
-    },
+    }
   )
 
   batcher.on('batch', async (msgs) => await callback(msgs))

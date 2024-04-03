@@ -5,7 +5,7 @@ import { client } from './client.js'
 import { checkMessages } from './utils.js'
 
 export async function getAllCastsByFid(
-  fid: FidRequest,
+  fid: FidRequest
 ): Promise<ReadonlyArray<Message>> {
   const pageSize = 10_000
   const casts: Message[] = []
@@ -32,7 +32,7 @@ export async function getAllCastsByFid(
 }
 
 export async function getAllReactionsByFid(
-  fid: FidRequest,
+  fid: FidRequest
 ): Promise<ReadonlyArray<Message>> {
   const pageSize = 10_000
   const reactions: Message[] = []

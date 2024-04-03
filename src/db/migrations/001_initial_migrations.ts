@@ -48,13 +48,13 @@ export const up = async (db: Kysely<unknown>) => {
   await db.schema
     .createTable('casts')
     .addColumn('id', 'uuid', (col) =>
-      col.defaultTo(sql`generate_ulid()`).primaryKey(),
+      col.defaultTo(sql`generate_ulid()`).primaryKey()
     )
     .addColumn('createdAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('updatedAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
@@ -69,7 +69,7 @@ export const up = async (db: Kysely<unknown>) => {
     .addColumn('embeds', 'json', (col) => col.notNull().defaultTo(sql`'[]'`))
     .addColumn('mentions', 'json', (col) => col.notNull().defaultTo(sql`'[]'`))
     .addColumn('mentionsPositions', 'json', (col) =>
-      col.notNull().defaultTo(sql`'[]'`),
+      col.notNull().defaultTo(sql`'[]'`)
     )
     .execute()
 
@@ -118,13 +118,13 @@ export const up = async (db: Kysely<unknown>) => {
   await db.schema
     .createTable('reactions')
     .addColumn('id', 'uuid', (col) =>
-      col.defaultTo(sql`generate_ulid()`).primaryKey(),
+      col.defaultTo(sql`generate_ulid()`).primaryKey()
     )
     .addColumn('createdAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('updatedAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
@@ -161,13 +161,13 @@ export const up = async (db: Kysely<unknown>) => {
   await db.schema
     .createTable('links')
     .addColumn('id', 'uuid', (col) =>
-      col.defaultTo(sql`generate_ulid()`).primaryKey(),
+      col.defaultTo(sql`generate_ulid()`).primaryKey()
     )
     .addColumn('createdAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('updatedAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
@@ -182,13 +182,13 @@ export const up = async (db: Kysely<unknown>) => {
   await db.schema
     .createTable('verifications')
     .addColumn('id', 'uuid', (col) =>
-      col.defaultTo(sql`generate_ulid()`).primaryKey(),
+      col.defaultTo(sql`generate_ulid()`).primaryKey()
     )
     .addColumn('createdAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('updatedAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
@@ -213,13 +213,13 @@ export const up = async (db: Kysely<unknown>) => {
   await db.schema
     .createTable('userData')
     .addColumn('id', 'uuid', (col) =>
-      col.defaultTo(sql`generate_ulid()`).primaryKey(),
+      col.defaultTo(sql`generate_ulid()`).primaryKey()
     )
     .addColumn('createdAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('updatedAt', 'timestamptz', (col) =>
-      col.notNull().defaultTo(sql`current_timestamp`),
+      col.notNull().defaultTo(sql`current_timestamp`)
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')

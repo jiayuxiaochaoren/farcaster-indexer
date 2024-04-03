@@ -14,7 +14,7 @@ export async function insertUserDatas(msgs: Message[]) {
       .onConflict((oc) =>
         oc.columns(['fid', 'type']).doUpdateSet((eb) => ({
           value: eb.ref('excluded.value'),
-        })),
+        }))
       )
       .execute()
 

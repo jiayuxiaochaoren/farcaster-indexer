@@ -105,6 +105,6 @@ export async function saveCurrentEventId() {
     },
     (e) => {
       log.error(e, 'Error streaming data.')
-    },
+    }
   )
 }
