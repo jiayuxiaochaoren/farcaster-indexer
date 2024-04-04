@@ -83,7 +83,14 @@ export async function saveCurrentEventId() {
   let triggered = false
 
   const result = await client.subscribe({
-    eventTypes: [0, 1, 2, 3, 6, 9],
+    eventTypes: [
+      HubEventType.NONE,
+      HubEventType.MERGE_MESSAGE,
+      HubEventType.PRUNE_MESSAGE,
+      HubEventType.REVOKE_MESSAGE,
+      HubEventType.MERGE_USERNAME_PROOF,
+      HubEventType.MERGE_ON_CHAIN_EVENT,
+    ],
   })
 
   if (result.isErr()) {
@@ -93,13 +100,13 @@ export async function saveCurrentEventId() {
 
   result.match(
     (stream) => {
-      stream.on('data', async (e: HubEvent) => {
+      stream.on('data', async (hubEvent: HubEvent) => {
         if (triggered) return
 
         triggered = true
 
         // Save the latest event ID to the database so we can resume from here
-        await insertEvent(e.id)
+        await insertEvent(hubEvent.id)
         stream.cancel()
       })
     },
