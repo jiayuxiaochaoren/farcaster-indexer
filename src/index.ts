@@ -3,9 +3,11 @@ import 'dotenv/config'
 
 import { getLatestEvent } from './api/event.js'
 import { backfill } from './backfill.js'
-import { client } from './lib/client.js'
+import { client, validateClient } from './lib/client.js'
 import { log } from './lib/logger.js'
 import { subscribe } from './lib/subscriber.js'
+
+await validateClient()
 
 // Check the latest hub event we processed, if any
 let latestEventId = await getLatestEvent()
