@@ -40,7 +40,7 @@ export async function backfill({
   for (const fid of allFids) {
     await getFullProfileFromHub(fid)
       .then((profile) => {
-        return Promise.all([
+        return Promise.allSettled([
           ...profile.casts.map((msg) => castAddBatcher.add(msg)),
           ...profile.links.map((msg) => linkAddBatcher.add(msg)),
           ...profile.reactions.map((msg) => reactionAddBatcher.add(msg)),

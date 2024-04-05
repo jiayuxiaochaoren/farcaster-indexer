@@ -10,10 +10,13 @@ import {
   insertVerifications,
 } from '../api/verification.js'
 
+interface BatcherWithTypedAdd<T> extends Bottleneck.Batcher {
+  add: (data: T) => Promise<void>
+}
 export function createBatcher<T>(
   callback: (msgs: T[]) => Promise<void>,
   options?: Bottleneck.BatcherOptions
-) {
+): BatcherWithTypedAdd<T> {
   const batcher = new Bottleneck.Batcher(
     options || {
       maxTime: 10_000,
