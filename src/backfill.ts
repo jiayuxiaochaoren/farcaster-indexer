@@ -17,35 +17,38 @@ import { checkMessages } from './lib/utils.js'
 
 const progressBar = new SingleBar({ fps: 1 }, Presets.shades_classic)
 
+interface FidRange {
+  minFid?: number
+  maxFid?: number
+}
 /**
  * Backfill the database with data from a hub. This may take a while.
  */
 export async function backfill({
-  maxFid,
-}: {
-  maxFid?: number | undefined
-}): Promise<void> {
+  minFid = 1,
+  maxFid = Number.MAX_SAFE_INTEGER,
+}: FidRange = {}): Promise<void> {
   // Save the current event ID so we can start from there after backfilling
   await saveCurrentEventId()
 
   log.info('Backfilling...')
   const startTime = new Date().getTime()
-  const allFids = await getAllFids()
-  progressBar.start(maxFid || allFids.length, allFids[0])
+  const allFids = await getAllFids({ minFid, maxFid })
+  progressBar.start(allFids.length, 0)
 
+  log.debug(`Fids to backfill: ${allFids.length}`)
   for (const fid of allFids) {
-    if (maxFid && fid > maxFid) {
-      log.warn(`Reached max FID ${maxFid}, stopping backfill`)
-      break
-    }
-
     await getFullProfileFromHub(fid)
       .then((profile) => {
-        profile.casts.forEach((msg) => castAddBatcher.add(msg))
-        profile.links.forEach((msg) => linkAddBatcher.add(msg))
-        profile.reactions.forEach((msg) => reactionAddBatcher.add(msg))
-        profile.userData.forEach((msg) => userDataAddBatcher.add(msg))
-        profile.verifications.forEach((msg) => verificationAddBatcher.add(msg))
+        return Promise.all([
+          ...profile.casts.map((msg) => castAddBatcher.add(msg)),
+          ...profile.links.map((msg) => linkAddBatcher.add(msg)),
+          ...profile.reactions.map((msg) => reactionAddBatcher.add(msg)),
+          ...profile.userData.map((msg) => userDataAddBatcher.add(msg)),
+          ...profile.verifications.map((msg) =>
+            verificationAddBatcher.add(msg)
+          ),
+        ])
       })
       .catch((err) => {
         log.error(err, `Error getting profile for FID ${fid}`)
@@ -89,7 +92,10 @@ async function getFullProfileFromHub(_fid: number) {
  * Get all fids
  * @returns array of fids
  */
-async function getAllFids(): Promise<ReadonlyArray<number>> {
+export async function getAllFids({
+  minFid = 1,
+  maxFid = Number.MAX_SAFE_INTEGER,
+}: FidRange = {}): Promise<ReadonlyArray<number>> {
   const maxFidResult = await client.getFids({
     pageSize: 1,
     reverse: true,
@@ -98,7 +104,8 @@ async function getAllFids(): Promise<ReadonlyArray<number>> {
   if (maxFidResult.isErr()) {
     throw new Error('Unable to backfill', { cause: maxFidResult.error })
   }
+  const newestFid = maxFidResult.value.fids[0]
 
-  const maxFid = maxFidResult.value.fids[0]
-  return Array.from({ length: Number(maxFid) }, (_, i) => i + 1)
+  const endOfArray: number = newestFid > maxFid ? maxFid : newestFid
+  return Array.from({ length: endOfArray - minFid + 1 }, (_, i) => minFid + i)
 }

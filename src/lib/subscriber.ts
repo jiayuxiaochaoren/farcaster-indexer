@@ -31,10 +31,10 @@ export async function subscribe(fromId: number | undefined) {
     (stream) => {
       log.info(`Subscribed to stream ${fromId ? `from event ${fromId}` : ''}`)
 
-      stream.on('data', async (e: HubEvent) => {
+      stream.on('data', async (hubEvent: HubEvent) => {
         // Keep track of latest event so we can pick up where we left off if the stream is interrupted
-        latestEventId = e.id
-        await handleEvent(e)
+        latestEventId = hubEvent.id
+        await handleEvent(hubEvent)
       })
 
       stream.on('close', () => {

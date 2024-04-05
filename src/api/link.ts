@@ -4,23 +4,25 @@ import { db } from '../db/kysely.js'
 import { log } from '../lib/logger.js'
 import { formatLinks } from '../lib/utils.js'
 
-export async function insertLinks(msgs: Message[]) {
+export async function insertLinks(msgs: Message[]): Promise<void> {
   const links = formatLinks(msgs)
 
   try {
-    await db
+    const insertResult = await db
       .insertInto('links')
       .values(links)
       .onConflict((oc) => oc.column('hash').doNothing())
       .execute()
 
-    log.debug(`LINKS INSERTED`)
+    log.debug(
+      `LINKS INSERTED (${insertResult[0].numInsertedOrUpdatedRows?.toLocaleString()})`
+    )
   } catch (error) {
     log.error(error, 'ERROR INSERTING LINK')
   }
 }
 
-export async function deleteLinks(msgs: Message[]) {
+export async function deleteLinks(msgs: Message[]): Promise<void> {
   try {
     await db.transaction().execute(async (trx) => {
       for (const msg of msgs) {

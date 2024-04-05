@@ -35,15 +35,6 @@ export function handleEvent(event: HubEvent) {
         case MessageType.CAST_REMOVE:
           castRemoveBatcher.add(msg)
           break
-        case MessageType.VERIFICATION_ADD_ETH_ADDRESS:
-          verificationAddBatcher.add(msg)
-          break
-        case MessageType.VERIFICATION_REMOVE:
-          verificationRemoveBatcher.add(msg)
-          break
-        case MessageType.USER_DATA_ADD:
-          userDataAddBatcher.add(msg)
-          break
         case MessageType.REACTION_ADD:
           reactionAddBatcher.add(msg)
           break
@@ -55,6 +46,15 @@ export function handleEvent(event: HubEvent) {
           break
         case MessageType.LINK_REMOVE:
           linkRemoveBatcher.add(msg)
+          break
+        case MessageType.VERIFICATION_ADD_ETH_ADDRESS:
+          verificationAddBatcher.add(msg)
+          break
+        case MessageType.VERIFICATION_REMOVE:
+          verificationRemoveBatcher.add(msg)
+          break
+        case MessageType.USER_DATA_ADD:
+          userDataAddBatcher.add(msg)
           break
         default:
           log.debug('UNHANDLED MERGE_MESSAGE EVENT', event.id)

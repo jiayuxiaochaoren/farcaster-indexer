@@ -4,11 +4,11 @@ import { db } from '../db/kysely.js'
 import { log } from '../lib/logger.js'
 import { formatUserDatas } from '../lib/utils.js'
 
-export async function insertUserDatas(msgs: Message[]) {
+export async function insertUserDatas(msgs: Message[]): Promise<void> {
   const userDatas = formatUserDatas(msgs)
 
   try {
-    await db
+    const insertedResult = await db
       .insertInto('userData')
       .values(userDatas)
       .onConflict((oc) =>
@@ -18,7 +18,9 @@ export async function insertUserDatas(msgs: Message[]) {
       )
       .execute()
 
-    log.debug(`USER DATA INSERTED`)
+    log.debug(
+      `USER DATAS INSERTED (${insertedResult[0].numInsertedOrUpdatedRows?.toLocaleString()})`
+    )
   } catch (error) {
     log.error(error, 'ERROR INSERTING USER DATA')
   }

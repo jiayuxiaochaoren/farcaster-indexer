@@ -8,23 +8,25 @@ import { formatReactions } from '../lib/utils.js'
  * Insert a reaction in the database
  * @param msg Hub event in JSON format
  */
-export async function insertReactions(msgs: Message[]) {
+export async function insertReactions(msgs: Message[]): Promise<void> {
   const reactions = formatReactions(msgs)
 
   try {
-    await db
+    const insertedResult = await db
       .insertInto('reactions')
       .values(reactions)
       .onConflict((oc) => oc.column('hash').doNothing())
       .execute()
 
-    log.debug(`REACTIONS INSERTED`)
+    log.debug(
+      `REACTIONS INSERTED (${insertedResult[0].numInsertedOrUpdatedRows?.toLocaleString()})`
+    )
   } catch (error) {
     log.error(error, 'ERROR INSERTING REACTIONS')
   }
 }
 
-export async function deleteReactions(msgs: Message[]) {
+export async function deleteReactions(msgs: Message[]): Promise<void> {
   try {
     await db.transaction().execute(async (trx) => {
       for (const msg of msgs) {

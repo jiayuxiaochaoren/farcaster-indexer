@@ -8,17 +8,19 @@ import { formatVerifications } from '../lib/utils.js'
  * Insert a new verification in the database
  * @param msg Hub event in JSON format
  */
-export async function insertVerifications(msgs: Message[]) {
+export async function insertVerifications(msgs: Message[]): Promise<void> {
   const verifications = formatVerifications(msgs)
 
   try {
-    await db
+    const insertedResult = await db
       .insertInto('verifications')
       .values(verifications)
       .onConflict((oc) => oc.columns(['fid', 'signerAddress']).doNothing())
       .execute()
 
-    log.debug(`VERIFICATIONS INSERTED`)
+    log.debug(
+      `VERIFICATIONS INSERTED (${insertedResult[0].numInsertedOrUpdatedRows?.toLocaleString()})`
+    )
   } catch (error) {
     log.error(error, 'ERROR INSERTING VERIFICATION')
   }
@@ -28,7 +30,7 @@ export async function insertVerifications(msgs: Message[]) {
  * Delete a verification from the database
  * @param msg Hub event in JSON format
  */
-export async function deleteVerifications(msgs: Message[]) {
+export async function deleteVerifications(msgs: Message[]): Promise<void> {
   try {
     await db.transaction().execute(async (transaction) => {
       for (const msg of msgs) {
