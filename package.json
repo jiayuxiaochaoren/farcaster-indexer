@@ -11,8 +11,9 @@
     "dev": "tsc && node ./dist/index.js",
     "backfill": "tsc && node ./dist/index.js --backfill",
     "kysely:migrate": "tsc && node ./dist/db/migrator.js",
-    "test": "npm run lint && npm run build",
-    "prepare": "husky install"
+    "test": "concurrently \"npm run lint\" \"npm run build\" \"npm run vitest -- --run\"",
+    "prepare": "husky install",
+    "vitest": "vitest"
   },
   "prettier": {
     "singleQuote": true,
@@ -46,6 +47,7 @@
     "@types/pg-pool": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-only-warn": "^1.1.0",
@@ -53,6 +55,7 @@
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
-    "typescript": "^5.4.4"
+    "typescript": "^5.4.4",
+    "vitest": "^1.4.0"
   }
 }
