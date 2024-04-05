@@ -68,23 +68,23 @@ export async function backfill({
  * Index all messages from a profile
  * @param fid Farcaster ID
  */
-async function getFullProfileFromHub(_fid: number) {
-  const fid = FidRequest.create({ fid: _fid })
+async function getFullProfileFromHub(fid: number) {
+  const fidRequest = FidRequest.create({ fid })
 
   const [casts, reactions, links, userData, verifications] = await Promise.all([
-    getAllCastsByFid(fid),
-    getAllReactionsByFid(fid),
-    client.getLinksByFid({ ...fid, reverse: true }),
-    client.getUserDataByFid(fid),
-    client.getVerificationsByFid(fid),
+    getAllCastsByFid(fidRequest),
+    getAllReactionsByFid(fidRequest),
+    client.getLinksByFid({ ...fidRequest, reverse: true }),
+    client.getUserDataByFid(fidRequest),
+    client.getVerificationsByFid(fidRequest),
   ])
 
   return {
     casts,
     reactions,
-    links: checkMessages(links, _fid),
-    userData: checkMessages(userData, _fid),
-    verifications: checkMessages(verifications, _fid),
+    links: checkMessages(links, fid),
+    userData: checkMessages(userData, fid),
+    verifications: checkMessages(verifications, fid),
   }
 }
 
