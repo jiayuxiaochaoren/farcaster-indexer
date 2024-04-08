@@ -1,4 +1,3 @@
-import { FidRequest } from '@farcaster/hub-nodejs'
 import { Presets, SingleBar } from 'cli-progress'
 import 'dotenv/config'
 
@@ -6,6 +5,7 @@ import {
   selectAllLatestFidPulls,
   upsertLatestFidPull,
 } from './api/latest-fid-pulls.js'
+import { FidHubFetcher } from './lib/FidHubFetcher.js'
 import {
   castAddBatcher,
   linkAddBatcher,
@@ -16,8 +16,6 @@ import {
 import { saveCurrentEventId } from './lib/event.js'
 import { hubClient } from './lib/hub-client.js'
 import { log } from './lib/logger.js'
-import { getAllCastsByFid, getAllReactionsByFid } from './lib/paginate.js'
-import { checkMessages } from './lib/utils.js'
 
 const progressBar = new SingleBar({ fps: 1 }, Presets.shades_classic)
 
@@ -55,17 +53,6 @@ export async function backfill({
     progressBar.increment()
     const updatedAt = new Date()
     await getFullProfileFromHub(fid)
-      .then((profile) => {
-        return Promise.allSettled([
-          ...profile.casts.map((msg) => castAddBatcher.add(msg)),
-          ...profile.links.map((msg) => linkAddBatcher.add(msg)),
-          ...profile.reactions.map((msg) => reactionAddBatcher.add(msg)),
-          ...profile.userData.map((msg) => userDataAddBatcher.add(msg)),
-          ...profile.verifications.map((msg) =>
-            verificationAddBatcher.add(msg)
-          ),
-        ])
-      })
       .then(() => {
         void upsertLatestFidPull(fid, updatedAt)
       })
@@ -88,23 +75,32 @@ export async function backfill({
  * @param fid Farcaster ID
  */
 async function getFullProfileFromHub(fid: number) {
-  const fidRequest = FidRequest.create({ fid })
-
-  const [casts, reactions, links, userData, verifications] = await Promise.all([
-    getAllCastsByFid(fidRequest),
-    getAllReactionsByFid(fidRequest),
-    hubClient.getLinksByFid({ ...fidRequest, reverse: true }),
-    hubClient.getUserDataByFid(fidRequest),
-    hubClient.getVerificationsByFid(fidRequest),
+  const fidHubFetcher = new FidHubFetcher(fid)
+  return Promise.all([
+    fidHubFetcher.getAllCastsByFid().then((casts) => {
+      return Promise.all(casts.map((cast) => castAddBatcher.add(cast)))
+    }),
+    fidHubFetcher.getAllReactionsByFid().then((reactions) => {
+      return Promise.all(
+        reactions.map((reaction) => reactionAddBatcher.add(reaction))
+      )
+    }),
+    fidHubFetcher.getAllLinksByFid().then((links) => {
+      return Promise.all(links.map((link) => linkAddBatcher.add(link)))
+    }),
+    fidHubFetcher.getAllUserDataByFid().then((userDatas) => {
+      return Promise.all(
+        userDatas.map((userData) => userDataAddBatcher.add(userData))
+      )
+    }),
+    fidHubFetcher.getAllVerificationsByFid().then((verifications) => {
+      return Promise.all(
+        verifications.map((verification) =>
+          verificationAddBatcher.add(verification)
+        )
+      )
+    }),
   ])
-
-  return {
-    casts,
-    reactions,
-    links: checkMessages(links, fid),
-    userData: checkMessages(userData, fid),
-    verifications: checkMessages(verifications, fid),
-  }
 }
 
 /**
