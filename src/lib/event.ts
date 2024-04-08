@@ -12,7 +12,7 @@ import {
   verificationAddBatcher,
   verificationRemoveBatcher,
 } from './batch.js'
-import { client } from './client.js'
+import { hubClient } from './hub-client.js'
 import { log } from './logger.js'
 
 /**
@@ -88,7 +88,7 @@ export function handleEvent(event: HubEvent): Promise<unknown> {
 export async function saveCurrentEventId() {
   let triggered = false
 
-  const result = await client.subscribe({
+  const result = await hubClient.subscribe({
     eventTypes: [
       HubEventType.NONE,
       HubEventType.MERGE_MESSAGE,

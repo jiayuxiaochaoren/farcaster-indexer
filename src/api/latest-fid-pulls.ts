@@ -10,11 +10,14 @@ export async function upsertLatestFidPull(
 ): Promise<void> {
   try {
     // TODO: Optimize upsert so we don't waste a delete operation here
-    await db
-      .deleteFrom(tableName)
-      .where('fid', '=', fid)
-      .execute()
-      .then(() => db.insertInto(tableName).values({ fid, updatedAt }).execute())
+    await db.transaction().execute(async (transaction) => {
+      await transaction.deleteFrom(tableName).where('fid', '=', fid).execute()
+      await transaction
+        .insertInto(tableName)
+        .values({ fid, updatedAt })
+        .execute()
+    })
+
     log.debug(`LATEST FID PULL UPSERTED FOR FID ${fid}`)
   } catch (error) {
     log.error(error, 'ERROR INSERTING LATEST FID PULL')

@@ -13,8 +13,8 @@ import {
   userDataAddBatcher,
   verificationAddBatcher,
 } from './lib/batch.js'
-import { client } from './lib/client.js'
 import { saveCurrentEventId } from './lib/event.js'
+import { hubClient } from './lib/hub-client.js'
 import { log } from './lib/logger.js'
 import { getAllCastsByFid, getAllReactionsByFid } from './lib/paginate.js'
 import { checkMessages } from './lib/utils.js'
@@ -39,25 +39,20 @@ export async function backfill({
   log.info('Backfilling...')
   const startTime = new Date().getTime()
   const allFids = await getAllFids({ minFid, maxFid })
-  progressBar.start(allFids.length, 0)
 
-  log.debug(`Fids to backfill: ${allFids.length}`)
-  const latestFidPulls = await selectAllLatestFidPulls()
-  for (const fid of allFids) {
-    progressBar.increment()
-    const latestFidPull: Date | undefined = latestFidPulls.find(
-      (fidPull) => fidPull.fid === fid
-    )?.updatedAt
+  const latestFidPullRows = await selectAllLatestFidPulls()
+  const fidsToPull = allFids.filter((fid) => {
+    const latestFidPull = latestFidPullRows.find((latestFidPullRow) => {
+      return latestFidPullRow.fid === fid
+    })?.updatedAt
     const fidPulledRecently: boolean =
       typeof latestFidPull !== 'undefined' && latestFidPull >= threeDaysAgo
-
-    if (fidPulledRecently) {
-      log.debug(
-        `fid ${fid} was pulled recently. Skipping fetching latest profile from hub.`
-      )
-      continue
-    }
-
+    return !fidPulledRecently
+  })
+  progressBar.start(fidsToPull.length, 0)
+  log.debug(`Fids to backfill: ${fidsToPull.length.toLocaleString()}`)
+  for (const fid of fidsToPull) {
+    progressBar.increment()
     const updatedAt = new Date()
     await getFullProfileFromHub(fid)
       .then((profile) => {
@@ -83,7 +78,7 @@ export async function backfill({
   const elapsedMilliseconds = endTime - startTime
   const elapsedMinutes = elapsedMilliseconds / 60000
   log.info(
-    `Done backfilling ${allFids.length.toLocaleString()} fids in ${elapsedMinutes} minutes`
+    `Done backfilling ${fidsToPull.length.toLocaleString()} fids in ${elapsedMinutes} minutes`
   )
   progressBar.stop()
 }
@@ -98,9 +93,9 @@ async function getFullProfileFromHub(fid: number) {
   const [casts, reactions, links, userData, verifications] = await Promise.all([
     getAllCastsByFid(fidRequest),
     getAllReactionsByFid(fidRequest),
-    client.getLinksByFid({ ...fidRequest, reverse: true }),
-    client.getUserDataByFid(fidRequest),
-    client.getVerificationsByFid(fidRequest),
+    hubClient.getLinksByFid({ ...fidRequest, reverse: true }),
+    hubClient.getUserDataByFid(fidRequest),
+    hubClient.getVerificationsByFid(fidRequest),
   ])
 
   return {
@@ -120,7 +115,7 @@ export async function getAllFids({
   minFid = 1,
   maxFid = Number.MAX_SAFE_INTEGER,
 }: FidRange = {}): Promise<ReadonlyArray<number>> {
-  const maxFidResult = await client.getFids({
+  const maxFidResult = await hubClient.getFids({
     pageSize: 1,
     reverse: true,
   })

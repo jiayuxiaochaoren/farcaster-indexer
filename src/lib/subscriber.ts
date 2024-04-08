@@ -1,12 +1,16 @@
-import { HubEvent, HubEventType } from '@farcaster/hub-nodejs'
+import {
+  HubEvent,
+  HubEventType,
+  fromFarcasterTime,
+} from '@farcaster/hub-nodejs'
 
 import { insertEvent } from '../api/event.js'
 import {
   selectLatestFidPull,
   upsertLatestFidPull,
 } from '../api/latest-fid-pulls.js'
-import { client } from './client.js'
 import { handleEvent } from './event.js'
+import { hubClient } from './hub-client.js'
 import { log } from './logger.js'
 
 let latestEventId: number | undefined
@@ -16,7 +20,7 @@ const threeDaysAgo = new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000)
  * Listen for new events from a Hub
  */
 export async function subscribe(fromEventId: number | undefined) {
-  const result = await client.subscribe({
+  const result = await hubClient.subscribe({
     eventTypes: [
       HubEventType.MERGE_MESSAGE,
       HubEventType.PRUNE_MESSAGE,
@@ -43,9 +47,8 @@ export async function subscribe(fromEventId: number | undefined) {
           // Keep track of latest event so we can pick up where we left off if the stream is interrupted
           latestEventId = hubEvent.id
 
-          // If user had event within last three days, reset their latest fid pull to current
-          const updatedAt = new Date()
           await handleEvent(hubEvent).then(async () => {
+            // If user had event within last three days, reset their latest fid pull to current
             const msg = hubEvent.mergeMessageBody?.message
             const fid = msg?.data?.fid
             if (typeof fid === 'number') {
@@ -55,7 +58,13 @@ export async function subscribe(fromEventId: number | undefined) {
                 latestFidPull >= threeDaysAgo
 
               if (fidPulledRecently) {
-                return upsertLatestFidPull(fid, updatedAt)
+                const timestamp = msg?.data?.timestamp
+                if (timestamp) {
+                  const updatedAt = new Date(
+                    fromFarcasterTime(timestamp)._unsafeUnwrap()
+                  )
+                  return upsertLatestFidPull(fid, updatedAt)
+                }
               }
             }
           })
@@ -78,7 +87,7 @@ export async function subscribe(fromEventId: number | undefined) {
 
 // Handle graceful shutdown and log the latest event ID
 async function handleShutdownSignal(signalName: NodeJS.Signals) {
-  client.close()
+  hubClient.close()
   log.info(`${signalName} received`)
 
   // TODO: figure out how to handle this in a more robust way.
