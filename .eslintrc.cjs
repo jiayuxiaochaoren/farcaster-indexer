@@ -20,5 +20,6 @@ module.exports = {
     'no-shadow': 'error',
     'new-cap': 'error',
     'no-console': 'error',
+    'object-shorthand': 'error',
   },
 }

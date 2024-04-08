@@ -5,7 +5,7 @@ import { log } from '../lib/logger.js'
 const tableName = 'latest_fid_pulls'
 export async function upsertLatestFidPull(
   fid: number,
-  timestamp: Date
+  updatedAt: Date
 ): Promise<void> {
   try {
     // TODO: Optimize upsert so we don't waste a delete operation here
@@ -13,9 +13,7 @@ export async function upsertLatestFidPull(
       .deleteFrom(tableName)
       .where('fid', '=', fid)
       .execute()
-      .then(() =>
-        db.insertInto(tableName).values({ fid, updatedAt: timestamp }).execute()
-      )
+      .then(() => db.insertInto(tableName).values({ fid, updatedAt }).execute())
     log.debug(`LATEST FID PULL UPSERTED FOR FID ${fid}`)
   } catch (error) {
     log.error(error, 'ERROR INSERTING LATEST FID PULL')
