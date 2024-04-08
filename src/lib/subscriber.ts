@@ -1,16 +1,21 @@
 import { HubEvent, HubEventType } from '@farcaster/hub-nodejs'
 
 import { insertEvent } from '../api/event.js'
+import {
+  selectLatestFidPull,
+  upsertLatestFidPull,
+} from '../api/latest-fid-pulls.js'
 import { client } from './client.js'
 import { handleEvent } from './event.js'
 import { log } from './logger.js'
 
 let latestEventId: number | undefined
+const threeDaysAgo = new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000)
 
 /**
  * Listen for new events from a Hub
  */
-export async function subscribe(fromId: number | undefined) {
+export async function subscribe(fromEventId: number | undefined) {
   const result = await client.subscribe({
     eventTypes: [
       HubEventType.MERGE_MESSAGE,
@@ -19,7 +24,7 @@ export async function subscribe(fromId: number | undefined) {
       // HubEventType.MERGE_USERNAME_PROOF,
       // HubEventType.MERGE_ON_CHAIN_EVENT,
     ],
-    fromId,
+    fromId: fromEventId,
   })
 
   if (result.isErr()) {
@@ -29,12 +34,32 @@ export async function subscribe(fromId: number | undefined) {
 
   result.match(
     (stream) => {
-      log.info(`Subscribed to stream ${fromId ? `from event ${fromId}` : ''}`)
+      log.info(
+        `Subscribed to stream ${fromEventId ? `from event ${fromEventId}` : ''}`
+      )
 
-      stream.on('data', async (hubEvent: HubEvent) => {
-        // Keep track of latest event so we can pick up where we left off if the stream is interrupted
-        latestEventId = hubEvent.id
-        await handleEvent(hubEvent)
+      stream.on('data', (hubEvent: HubEvent) => {
+        void (async () => {
+          // Keep track of latest event so we can pick up where we left off if the stream is interrupted
+          latestEventId = hubEvent.id
+
+          // If user had event within last three days, reset their latest fid pull to current
+          const updatedAt = new Date()
+          await handleEvent(hubEvent).then(async () => {
+            const msg = hubEvent.mergeMessageBody?.message
+            const fid = msg?.data?.fid
+            if (typeof fid === 'number') {
+              const latestFidPull = await selectLatestFidPull(fid)
+              const fidPulledRecently: boolean =
+                typeof latestFidPull !== 'undefined' &&
+                latestFidPull >= threeDaysAgo
+
+              if (fidPulledRecently) {
+                return upsertLatestFidPull(fid, updatedAt)
+              }
+            }
+          })
+        })()
       })
 
       stream.on('close', () => {
@@ -69,14 +94,14 @@ async function handleShutdownSignal(signalName: NodeJS.Signals) {
   process.exit(0)
 }
 
-process.on('SIGINT', async () => {
-  await handleShutdownSignal('SIGINT')
+process.on('SIGINT', () => {
+  void handleShutdownSignal('SIGINT')
 })
 
-process.on('SIGTERM', async () => {
-  await handleShutdownSignal('SIGTERM')
+process.on('SIGTERM', () => {
+  void handleShutdownSignal('SIGTERM')
 })
 
-process.on('SIGQUIT', async () => {
-  await handleShutdownSignal('SIGQUIT')
+process.on('SIGQUIT', () => {
+  void handleShutdownSignal('SIGQUIT')
 })

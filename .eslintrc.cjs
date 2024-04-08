@@ -1,8 +1,9 @@
 module.exports = {
-  ignorePatterns: ['dist'],
+  ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
   plugins: [
     '@typescript-eslint',
+    'justinanastos',
     /* TODO: Remove only-warn when all eslint warnings are addressed */ 'only-warn',
   ],
   extends: [
@@ -21,5 +22,6 @@ module.exports = {
     'new-cap': 'error',
     'no-console': 'error',
     'object-shorthand': 'error',
+    'justinanastos/switch-braces': 'error',
   },
 }

@@ -3,7 +3,7 @@ import { Presets, SingleBar } from 'cli-progress'
 import 'dotenv/config'
 
 import {
-  selectLatestFidPull,
+  selectAllLatestFidPulls,
   upsertLatestFidPull,
 } from './api/latest-fid-pulls.js'
 import {
@@ -42,9 +42,12 @@ export async function backfill({
   progressBar.start(allFids.length, 0)
 
   log.debug(`Fids to backfill: ${allFids.length}`)
+  const latestFidPulls = await selectAllLatestFidPulls()
   for (const fid of allFids) {
     progressBar.increment()
-    const latestFidPull = await selectLatestFidPull(fid)
+    const latestFidPull: Date | undefined = latestFidPulls.find(
+      (fidPull) => fidPull.fid === fid
+    )?.updatedAt
     const fidPulledRecently: boolean =
       typeof latestFidPull !== 'undefined' && latestFidPull >= threeDaysAgo
 
@@ -55,7 +58,7 @@ export async function backfill({
       continue
     }
 
-    const timestamp = new Date()
+    const updatedAt = new Date()
     await getFullProfileFromHub(fid)
       .then((profile) => {
         return Promise.allSettled([
@@ -69,7 +72,7 @@ export async function backfill({
         ])
       })
       .then(() => {
-        void upsertLatestFidPull(fid, timestamp)
+        void upsertLatestFidPull(fid, updatedAt)
       })
       .catch((err) => {
         log.error(err, `Error getting profile for FID ${fid}`)
@@ -79,7 +82,9 @@ export async function backfill({
   const endTime = new Date().getTime()
   const elapsedMilliseconds = endTime - startTime
   const elapsedMinutes = elapsedMilliseconds / 60000
-  log.info(`Done backfilling in ${elapsedMinutes} minutes`)
+  log.info(
+    `Done backfilling ${allFids.length.toLocaleString()} fids in ${elapsedMinutes} minutes`
+  )
   progressBar.stop()
 }
 

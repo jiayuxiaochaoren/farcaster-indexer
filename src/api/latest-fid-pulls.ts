@@ -1,3 +1,4 @@
+import { LatestFidPullsRow } from '../db/db.types.js'
 import { db } from '../db/kysely.js'
 
 import { log } from '../lib/logger.js'
@@ -20,6 +21,18 @@ export async function upsertLatestFidPull(
   }
 }
 
+export async function selectAllLatestFidPulls(): Promise<
+  ReadonlyArray<LatestFidPullsRow>
+> {
+  try {
+    const rows = await db.selectFrom(tableName).selectAll().execute()
+    // db returns string for fid but our TS types state this should be a Number
+    return rows.map((row) => ({ ...row, fid: Number(row.fid) }))
+  } catch (error) {
+    log.error(error, 'ERROR SELECTING ALL LATEST FID PULLS')
+    throw error
+  }
+}
 export async function selectLatestFidPull(fid: number) {
   try {
     const row = await db

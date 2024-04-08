@@ -108,9 +108,9 @@ type EventRow = {
 }
 
 // LASTEST FID PULLS
-type LatestFidPullsRow = {
+export type LatestFidPullsRow = {
   fid: Fid
-  updatedAt: Generated<Date>
+  updatedAt: Date
 }
 
 // ALL TABLES --------------------------------------------------------------------------------------
