@@ -107,6 +107,12 @@ type EventRow = {
   id: number
 }
 
+// LASTEST FID PULLS
+type LatestFidPullsRow = {
+  fid: Fid
+  updatedAt: Generated<Date>
+}
+
 // ALL TABLES --------------------------------------------------------------------------------------
 export interface Tables {
   casts: CastRow
@@ -115,4 +121,5 @@ export interface Tables {
   verifications: VerificationRow
   userData: UserDataRow
   events: EventRow
+  latest_fid_pulls: LatestFidPullsRow
 }

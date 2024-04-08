@@ -3,6 +3,10 @@ import { Presets, SingleBar } from 'cli-progress'
 import 'dotenv/config'
 
 import {
+  selectLatestFidPull,
+  upsertLatestFidPull,
+} from './api/latest-fid-pulls.js'
+import {
   castAddBatcher,
   linkAddBatcher,
   reactionAddBatcher,
@@ -21,6 +25,7 @@ interface FidRange {
   minFid?: number
   maxFid?: number
 }
+const threeDaysAgo = new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000)
 /**
  * Backfill the database with data from a hub. This may take a while.
  */
@@ -38,6 +43,19 @@ export async function backfill({
 
   log.debug(`Fids to backfill: ${allFids.length}`)
   for (const fid of allFids) {
+    progressBar.increment()
+    const latestFidPull = await selectLatestFidPull(fid)
+    const fidPulledRecently: boolean =
+      typeof latestFidPull !== 'undefined' && latestFidPull >= threeDaysAgo
+
+    if (fidPulledRecently) {
+      log.info(
+        `fid ${fid} was pulled recently. Skipping fetching latest profile from hub.`
+      )
+      continue
+    }
+
+    const timestamp = new Date()
     await getFullProfileFromHub(fid)
       .then((profile) => {
         return Promise.allSettled([
@@ -50,11 +68,12 @@ export async function backfill({
           ),
         ])
       })
+      .then(() => {
+        void upsertLatestFidPull(fid, timestamp)
+      })
       .catch((err) => {
         log.error(err, `Error getting profile for FID ${fid}`)
       })
-
-    progressBar.increment()
   }
 
   const endTime = new Date().getTime()

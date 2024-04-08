@@ -8,3 +8,4 @@
 **/supabase/.temp
 package-lock.json
 .eslintcache
+yarn-error.log
