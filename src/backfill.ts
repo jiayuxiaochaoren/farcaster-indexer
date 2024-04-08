@@ -49,7 +49,7 @@ export async function backfill({
       typeof latestFidPull !== 'undefined' && latestFidPull >= threeDaysAgo
 
     if (fidPulledRecently) {
-      log.info(
+      log.debug(
         `fid ${fid} was pulled recently. Skipping fetching latest profile from hub.`
       )
       continue
@@ -121,7 +121,7 @@ export async function getAllFids({
   })
 
   if (maxFidResult.isErr()) {
-    throw new Error('Unable to backfill', { cause: maxFidResult.error })
+    throw new Error('Unable to getFids', { cause: maxFidResult.error })
   }
   const newestFid = maxFidResult.value.fids[0]
 

@@ -16,6 +16,7 @@ export async function upsertLatestFidPull(
       .then(() =>
         db.insertInto(tableName).values({ fid, updatedAt: timestamp }).execute()
       )
+    log.debug(`LATEST FID PULL UPSERTED FOR FID ${fid}`)
   } catch (error) {
     log.error(error, 'ERROR INSERTING LATEST FID PULL')
   }
