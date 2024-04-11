@@ -1,6 +1,7 @@
 import { Presets, SingleBar } from 'cli-progress'
 import 'dotenv/config'
 
+import pLimit from 'p-limit'
 import {
   selectAllLatestFidPulls,
   upsertLatestFidPull,
@@ -16,6 +17,9 @@ import {
 import { saveCurrentEventId } from './lib/event.js'
 import { hubClient } from './lib/hub-client.js'
 import { log } from './lib/logger.js'
+
+const MAX_CONCURRENCY = 5
+const limit = pLimit(MAX_CONCURRENCY)
 
 const progressBar = new SingleBar({ fps: 1 }, Presets.shades_classic)
 
@@ -49,17 +53,22 @@ export async function backfill({
   })
   progressBar.start(fidsToPull.length, 0)
   log.debug(`Fids to backfill: ${fidsToPull.length.toLocaleString()}`)
-  for (const fid of fidsToPull) {
-    progressBar.increment()
-    const updatedAt = new Date()
-    await getFullProfileFromHub(fid)
-      .then(() => {
-        void upsertLatestFidPull(fid, updatedAt)
-      })
-      .catch((err) => {
-        log.error(err, `Error getting profile for FID ${fid}`)
-      })
-  }
+  const allPromises: Array<Promise<unknown>> = fidsToPull.map((fid) => {
+    return limit(() => {
+      log.info(`starting fetch of fid ${fid}`)
+      progressBar.increment()
+      const updatedAt = new Date()
+      return getFullProfileFromHub(fid)
+        .then(() => {
+          void upsertLatestFidPull(fid, updatedAt)
+        })
+        .catch((err) => {
+          log.error(err, `Error getting profile for FID ${fid}`)
+        })
+    })
+  })
+
+  await Promise.all(allPromises)
 
   const endTime = new Date().getTime()
   const elapsedMilliseconds = endTime - startTime

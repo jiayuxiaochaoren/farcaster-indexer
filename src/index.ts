@@ -24,7 +24,7 @@ if (!latestEvent.isOk()) {
 
 // If the first argument is "--backfill" or `latestEventId` is undefined, run backfill()
 if (process.argv[2] === '--backfill' || !latestEventId) {
-  await backfill({ maxFid: 10 })
+  await backfill({ minFid: 11700, maxFid: 13000 })
 
   // An event id is recorded before backfilling begins so we can pick up where we left off
   latestEventId = await getLatestEvent()
