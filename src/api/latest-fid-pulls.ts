@@ -9,14 +9,7 @@ export async function upsertLatestFidPull(
   updatedAt: Date
 ): Promise<void> {
   try {
-    // TODO: Optimize upsert so we don't waste a delete operation here
-    await db.transaction().execute(async (transaction) => {
-      await transaction.deleteFrom(tableName).where('fid', '=', fid).execute()
-      await transaction
-        .insertInto(tableName)
-        .values({ fid, updatedAt })
-        .execute()
-    })
+    await db.insertInto(tableName).values({ fid, updatedAt }).execute()
 
     log.debug(`LATEST FID PULL UPSERTED FOR FID ${fid}`)
   } catch (error) {
@@ -25,10 +18,15 @@ export async function upsertLatestFidPull(
 }
 
 export async function selectAllLatestFidPulls(): Promise<
-  ReadonlyArray<LatestFidPullsRow>
+  ReadonlyArray<Pick<LatestFidPullsRow, 'fid' | 'updatedAt'>>
 > {
   try {
-    const rows = await db.selectFrom(tableName).selectAll().execute()
+    const rows = await db
+      .selectFrom(tableName)
+      .select(['fid', 'updatedAt'])
+      .orderBy('updatedAt', 'desc') // Then order by updatedAt in descending order
+      .execute()
+
     // db returns string for fid but our TS types state this should be a Number
     return rows.map((row) => ({ ...row, fid: Number(row.fid) }))
   } catch (error) {

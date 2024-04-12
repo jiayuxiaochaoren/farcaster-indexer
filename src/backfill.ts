@@ -56,7 +56,6 @@ export async function backfill({
   const allPromises: Array<Promise<unknown>> = fidsToPull.map((fid) => {
     return limit(() => {
       log.info(`starting fetch of fid ${fid}`)
-      progressBar.increment()
       const updatedAt = new Date()
       return getFullProfileFromHub(fid)
         .then(() => {
@@ -64,6 +63,9 @@ export async function backfill({
         })
         .catch((err) => {
           log.error(err, `Error getting profile for FID ${fid}`)
+        })
+        .finally(() => {
+          progressBar.increment()
         })
     })
   })

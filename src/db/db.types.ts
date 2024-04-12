@@ -109,6 +109,7 @@ type EventRow = {
 
 // LASTEST FID PULLS
 export type LatestFidPullsRow = {
+  id: GeneratedAlways<UserDataDbId>
   fid: Fid
   updatedAt: Date
 }
