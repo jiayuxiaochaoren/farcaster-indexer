@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npx lint-staged --concurrent false
-npm run test
+bunx lint-staged --concurrent false
+bun run test
