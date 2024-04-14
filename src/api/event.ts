@@ -23,7 +23,7 @@ export async function insertEvent(eventId: number) {
  * Get the latest event ID from the database
  * @returns Latest event ID
  */
-export async function getLatestEvent(): Promise<number | undefined> {
+export async function getLatestEvent() {
   try {
     const event = await db
       .selectFrom('events')

@@ -27,7 +27,9 @@ interface FidRange {
   minFid?: number
   maxFid?: number
 }
+
 const threeDaysAgo = new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000)
+
 /**
  * Backfill the database with data from a hub. This may take a while.
  */
@@ -121,7 +123,7 @@ async function getFullProfileFromHub(fid: number) {
 export async function getAllFids({
   minFid = 1,
   maxFid = Number.MAX_SAFE_INTEGER,
-}: FidRange = {}): Promise<ReadonlyArray<number>> {
+}: FidRange = {}) {
   const maxFidResult = await hubClient.getFids({
     pageSize: 1,
     reverse: true,

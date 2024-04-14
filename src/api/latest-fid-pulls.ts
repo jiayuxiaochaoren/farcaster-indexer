@@ -13,9 +13,7 @@ export async function upsertLatestFidPull(fid: number, updatedAt: Date) {
   }
 }
 
-export async function selectAllLatestFidPulls(): Promise<
-  ReadonlyArray<Pick<LatestFidPullsRow, 'fid' | 'updatedAt'>>
-> {
+export async function selectAllLatestFidPulls() {
   try {
     const rows = await db
       .selectFrom(tableName)

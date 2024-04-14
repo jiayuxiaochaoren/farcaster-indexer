@@ -19,7 +19,7 @@ import { log } from './logger.js'
  * Update the database based on the event type
  * @param event Hub event in JSON format
  */
-export function handleEvent(event: HubEvent): Promise<unknown> {
+export function handleEvent(event: HubEvent) {
   // Handle each event type: MERGE_MESSAGE, PRUNE_MESSAGE, REVOKE_MESSAGE (3), MERGE_ID_REGISTRY_EVENT (4), MERGE_NAME_REGISTRY_EVENT (5)
   switch (event.type) {
     case HubEventType.MERGE_MESSAGE: {
