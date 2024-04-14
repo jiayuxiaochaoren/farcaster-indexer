@@ -2,6 +2,7 @@ import {
   getInsecureHubRpcClient,
   getSSLHubRpcClient,
 } from '@farcaster/hub-nodejs'
+
 import { log } from './logger.js'
 
 const HUB_RPC = process.env.HUB_RPC

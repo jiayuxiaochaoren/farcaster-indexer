@@ -1,5 +1,6 @@
 import { Message } from '@farcaster/hub-nodejs'
 import { beforeAll, describe, expect, it } from 'vitest'
+
 import { FidHubFetcher } from './FidHubFetcher'
 
 // Note: based on how hubs handle storage limits, it's possible for the number

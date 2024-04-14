@@ -13,14 +13,6 @@
     "prepare": "husky install",
     "vitest": "vitest"
   },
-  "prettier": {
-    "singleQuote": true,
-    "semi": false,
-    "trailingComma": "es5",
-    "plugins": [
-      "prettier-plugin-organize-imports"
-    ]
-  },
   "lint-staged": {
     "*": [
       "prettier --ignore-unknown --write"
@@ -41,6 +33,7 @@
     "viem": "^2.9.9"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/cli-progress": "^3.11.5",
     "@types/node": "^20.12.4",
     "@types/pg-pool": "^2.0.6",
@@ -55,7 +48,6 @@
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
-    "prettier-plugin-organize-imports": "^3.2.4",
     "vitest": "^1.4.0"
   }
 }
