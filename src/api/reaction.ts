@@ -8,7 +8,7 @@ import { formatReactions } from '../lib/utils.js'
  * Insert a reaction in the database
  * @param msg Hub event in JSON format
  */
-export async function insertReactions(msgs: Message[]): Promise<void> {
+export async function insertReactions(msgs: Message[]) {
   const reactions = formatReactions(msgs)
 
   try {
@@ -26,7 +26,7 @@ export async function insertReactions(msgs: Message[]): Promise<void> {
   }
 }
 
-export async function deleteReactions(msgs: Message[]): Promise<void> {
+export async function deleteReactions(msgs: Message[]) {
   try {
     await db.transaction().execute(async (trx) => {
       for (const msg of msgs) {

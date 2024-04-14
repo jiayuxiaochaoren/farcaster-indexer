@@ -8,7 +8,7 @@ import { formatVerifications } from '../lib/utils.js'
  * Insert a new verification in the database
  * @param msg Hub event in JSON format
  */
-export async function insertVerifications(msgs: Message[]): Promise<void> {
+export async function insertVerifications(msgs: Message[]) {
   const verifications = formatVerifications(msgs)
 
   try {
@@ -30,7 +30,7 @@ export async function insertVerifications(msgs: Message[]): Promise<void> {
  * Delete a verification from the database
  * @param msg Hub event in JSON format
  */
-export async function deleteVerifications(msgs: Message[]): Promise<void> {
+export async function deleteVerifications(msgs: Message[]) {
   try {
     await db.transaction().execute(async (transaction) => {
       for (const msg of msgs) {

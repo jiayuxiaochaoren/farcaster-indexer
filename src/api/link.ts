@@ -4,7 +4,7 @@ import { db } from '../db/kysely.js'
 import { log } from '../lib/logger.js'
 import { formatLinks } from '../lib/utils.js'
 
-export async function insertLinks(msgs: Message[]): Promise<void> {
+export async function insertLinks(msgs: Message[]) {
   const links = formatLinks(msgs)
 
   try {
@@ -22,7 +22,7 @@ export async function insertLinks(msgs: Message[]): Promise<void> {
   }
 }
 
-export async function deleteLinks(msgs: Message[]): Promise<void> {
+export async function deleteLinks(msgs: Message[]) {
   try {
     await db.transaction().execute(async (trx) => {
       for (const msg of msgs) {

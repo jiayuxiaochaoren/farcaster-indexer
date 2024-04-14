@@ -4,7 +4,7 @@ import { db } from '../db/kysely.js'
 import { log } from '../lib/logger.js'
 import { formatUserDatas } from '../lib/utils.js'
 
-export async function insertUserDatas(msgs: Message[]): Promise<void> {
+export async function insertUserDatas(msgs: Message[]) {
   const userDatas = formatUserDatas(msgs)
 
   try {

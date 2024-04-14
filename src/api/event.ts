@@ -5,7 +5,7 @@ import { log } from '../lib/logger.js'
  * Insert an event ID in the database
  * @param eventId Hub event ID
  */
-export async function insertEvent(eventId: number): Promise<void> {
+export async function insertEvent(eventId: number) {
   try {
     await db
       .insertInto('events')
