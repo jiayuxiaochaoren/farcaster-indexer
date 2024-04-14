@@ -1,5 +1,4 @@
 import { Presets, SingleBar } from 'cli-progress'
-import 'dotenv/config'
 import pLimit from 'p-limit'
 
 import {
@@ -17,6 +16,7 @@ import {
 import { saveCurrentEventId } from './lib/event.js'
 import { hubClient } from './lib/hub-client.js'
 import { log } from './lib/logger.js'
+import { threeDaysAgo } from './lib/utils.js'
 
 const MAX_CONCURRENCY = 5
 const limit = pLimit(MAX_CONCURRENCY)
@@ -27,8 +27,6 @@ interface FidRange {
   minFid?: number
   maxFid?: number
 }
-
-const threeDaysAgo = new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000)
 
 /**
  * Backfill the database with data from a hub. This may take a while.
@@ -43,32 +41,35 @@ export async function backfill({
   log.info('Backfilling...')
   const startTime = new Date().getTime()
   const allFids = await getAllFids({ minFid, maxFid })
-
   const latestFidPullRows = await selectAllLatestFidPulls()
+
   const fidsToPull = allFids.filter((fid) => {
-    const latestFidPull = latestFidPullRows.find((latestFidPullRow) => {
-      return latestFidPullRow.fid === fid
-    })?.updatedAt
-    const fidPulledRecently: boolean =
-      typeof latestFidPull !== 'undefined' && latestFidPull >= threeDaysAgo
+    const latestFidPull = latestFidPullRows.find(
+      (latestFidPullRow) => latestFidPullRow.fid === fid
+    )?.updatedAt
+
+    const fidPulledRecently = !!latestFidPull && latestFidPull >= threeDaysAgo
     return !fidPulledRecently
   })
-  progressBar.start(fidsToPull.length, 0)
+
+  progressBar.start(fidsToPull.length, minFid)
   log.debug(`Fids to backfill: ${fidsToPull.length.toLocaleString()}`)
-  const allPromises: Array<Promise<unknown>> = fidsToPull.map((fid) => {
-    return limit(() => {
-      log.info(`starting fetch of fid ${fid}`)
+
+  const allPromises = fidsToPull.map((fid) => {
+    return limit(async () => {
+      log.debug(`Starting fetch of fid ${fid}`)
       const updatedAt = new Date()
-      return getFullProfileFromHub(fid)
-        .then(() => {
+
+      try {
+        try {
+          await getFullProfileFromHub(fid)
           void upsertLatestFidPull(fid, updatedAt)
-        })
-        .catch((err) => {
+        } catch (err) {
           log.error(err, `Error getting profile for FID ${fid}`)
-        })
-        .finally(() => {
-          progressBar.increment()
-        })
+        }
+      } finally {
+        progressBar.increment()
+      }
     })
   })
 
@@ -89,30 +90,36 @@ export async function backfill({
  */
 async function getFullProfileFromHub(fid: number) {
   const fidHubFetcher = new FidHubFetcher(fid)
+
+  // TODO: Test if `Promise.all` actually makes this faster
   return Promise.all([
-    fidHubFetcher.getAllCastsByFid().then((casts) => {
-      return Promise.all(casts.map((cast) => castAddBatcher.add(cast)))
-    }),
-    fidHubFetcher.getAllReactionsByFid().then((reactions) => {
-      return Promise.all(
+    fidHubFetcher
+      .getAllCastsByFid()
+      .then((casts) => casts.map((cast) => castAddBatcher.add(cast))),
+
+    fidHubFetcher
+      .getAllReactionsByFid()
+      .then((reactions) =>
         reactions.map((reaction) => reactionAddBatcher.add(reaction))
-      )
-    }),
-    fidHubFetcher.getAllLinksByFid().then((links) => {
-      return Promise.all(links.map((link) => linkAddBatcher.add(link)))
-    }),
-    fidHubFetcher.getAllUserDataByFid().then((userDatas) => {
-      return Promise.all(
+      ),
+
+    fidHubFetcher
+      .getAllLinksByFid()
+      .then((links) => links.map((link) => linkAddBatcher.add(link))),
+
+    fidHubFetcher
+      .getAllUserDataByFid()
+      .then((userDatas) =>
         userDatas.map((userData) => userDataAddBatcher.add(userData))
-      )
-    }),
-    fidHubFetcher.getAllVerificationsByFid().then((verifications) => {
-      return Promise.all(
+      ),
+
+    fidHubFetcher
+      .getAllVerificationsByFid()
+      .then((verifications) =>
         verifications.map((verification) =>
           verificationAddBatcher.add(verification)
         )
-      )
-    }),
+      ),
   ])
 }
 
@@ -132,8 +139,8 @@ export async function getAllFids({
   if (maxFidResult.isErr()) {
     throw new Error('Unable to getFids', { cause: maxFidResult.error })
   }
-  const newestFid = maxFidResult.value.fids[0]
 
+  const newestFid = maxFidResult.value.fids[0]
   const endOfArray: number = newestFid > maxFid ? maxFid : newestFid
   return Array.from({ length: endOfArray - minFid + 1 }, (_, i) => minFid + i)
 }

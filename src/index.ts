@@ -26,6 +26,9 @@ if (!latestEvent.isOk()) {
 if (process.argv[2] === '--backfill' || !latestEventId) {
   await backfill({ maxFid: 10 })
 
+  log.info('Waiting for batchers to finish processing...')
+  await new Promise((resolve) => setTimeout(resolve, 10_000))
+
   // An event id is recorded before backfilling begins so we can pick up where we left off
   latestEventId = await getLatestEvent()
 }

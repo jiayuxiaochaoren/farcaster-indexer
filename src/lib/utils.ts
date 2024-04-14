@@ -138,3 +138,7 @@ export function checkOnchainEvent(event: HubResult<OnChainEvent>, fid: number) {
 
   return event.isOk() ? event.value : null
 }
+
+export const threeDaysAgo = new Date(
+  new Date().getTime() - 3 * 24 * 60 * 60 * 1000
+)

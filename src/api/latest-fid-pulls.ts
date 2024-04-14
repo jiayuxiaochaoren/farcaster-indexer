@@ -1,4 +1,3 @@
-import { LatestFidPullsRow } from '../db/db.types.js'
 import { db } from '../db/kysely.js'
 import { log } from '../lib/logger.js'
 

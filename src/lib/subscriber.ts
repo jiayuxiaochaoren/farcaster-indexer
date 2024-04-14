@@ -12,9 +12,9 @@ import {
 import { handleEvent } from './event.js'
 import { hubClient } from './hub-client.js'
 import { log } from './logger.js'
+import { threeDaysAgo } from './utils.js'
 
 let latestEventId: number | undefined
-const threeDaysAgo = new Date(new Date().getTime() - 3 * 24 * 60 * 60 * 1000)
 
 /**
  * Listen for new events from a Hub
