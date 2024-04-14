@@ -37,15 +37,22 @@ export async function deleteCasts(msgs: Message[]): Promise<void> {
       for (const msg of msgs) {
         const data = msg.data!
 
+        const targetHash = data.castRemoveBody?.targetHash
         const deletedAt = new Date(
           fromFarcasterTime(data.timestamp)._unsafeUnwrap()
         )
+
+        if (!targetHash) {
+          log.warn('No target hash to delete cast')
+          continue
+        }
+
         await trx
           .updateTable('casts')
           .set({
             deletedAt,
           })
-          .where('hash', '=', data.castRemoveBody?.targetHash!)
+          .where('hash', '=', targetHash)
           .execute()
       }
     })

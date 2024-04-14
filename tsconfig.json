@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "es2022",
+    "types": ["bun-types"],
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
     "rootDir": "./src",
     "outDir": "./dist",
     "moduleResolution": "node",

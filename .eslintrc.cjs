@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: ['dist', '.eslintrc.cjs', 'vitest.config.ts'],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'vitest.config.ts', 'ignore'],
   parser: '@typescript-eslint/parser',
   plugins: [
     '@typescript-eslint',

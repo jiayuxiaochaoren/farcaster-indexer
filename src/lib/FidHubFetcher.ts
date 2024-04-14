@@ -18,6 +18,7 @@ export class FidHubFetcher {
     const casts: Message[] = []
     let nextPageToken: Uint8Array | undefined
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const res = await hubClient.getCastsByFid({
         ...this.#fidRequest,
@@ -42,6 +43,7 @@ export class FidHubFetcher {
     const reactions: Message[] = []
     let nextPageToken: Uint8Array | undefined
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const res = await hubClient.getReactionsByFid({
         ...this.#fidRequest,

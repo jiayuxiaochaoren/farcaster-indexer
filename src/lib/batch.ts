@@ -25,6 +25,7 @@ export function createBatcher<T>(
     }
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/no-unsafe-argument
   batcher.on('batch', async (msgs) => await callback(msgs))
 
   return batcher
