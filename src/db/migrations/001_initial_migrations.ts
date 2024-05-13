@@ -59,6 +59,7 @@ export const up = async (db: Kysely<any>) => {
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
+    .addColumn('prunedAt', 'timestamptz')
     .addColumn('fid', 'bigint', (col) => col.notNull())
     .addColumn('parentFid', 'bigint')
     .addColumn('hash', 'bytea', (col) => col.notNull().unique())
@@ -136,6 +137,7 @@ export const up = async (db: Kysely<any>) => {
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
+    .addColumn('prunedAt', 'timestamptz')
     .addColumn('fid', 'bigint', (col) => col.notNull())
     .addColumn('targetCastFid', 'bigint')
     .addColumn('type', 'int2', (col) => col.notNull())
@@ -183,6 +185,7 @@ export const up = async (db: Kysely<any>) => {
     )
     .addColumn('timestamp', 'timestamptz', (col) => col.notNull())
     .addColumn('deletedAt', 'timestamptz')
+    .addColumn('prunedAt', 'timestamptz')
     .addColumn('fid', 'bigint', (col) => col.notNull())
     .addColumn('targetFid', 'bigint', (col) => col.notNull())
     .addColumn('displayTimestamp', 'timestamptz')
@@ -338,30 +341,6 @@ export const up = async (db: Kysely<any>) => {
     )
     .addColumn('updatedAt', 'timestamptz', (col) =>
       col.notNull().defaultTo(sql`current_timestamp`)
-    )
-    .execute()
-
-  // Users View
-  await db.schema
-    .createView('users')
-    .orReplace()
-    .as(
-      sql`
-      SELECT 
-          s.fid,
-          MAX(CASE WHEN ud.type = 1 THEN ud.value END) AS pfp,
-          MAX(CASE WHEN ud.type = 2 THEN ud.value END) AS display,
-          MAX(CASE WHEN ud.type = 3 THEN ud.value END) AS bio,
-          MAX(CASE WHEN ud.type = 5 THEN ud.value END) AS url,
-          MAX(CASE WHEN ud.type = 6 THEN ud.value END) AS username
-      FROM storage s
-      JOIN signers sg ON s.fid = sg.fid
-      LEFT JOIN user_data ud ON s.fid = ud.fid
-      WHERE s.units > 0
-        AND sg.requester_fid IS NOT NULL
-        AND ud.deleted_at IS NULL
-      GROUP BY s.fid
-      ORDER BY s.fid ASC;`
     )
     .execute()
 }

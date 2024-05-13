@@ -1,4 +1,5 @@
 import {
+  ContactInfoContentBody,
   FidRequest,
   HubResult,
   Message,
@@ -36,10 +37,9 @@ export function formatCasts(msgs: Message[]) {
   return msgs.map((msg) => {
     const data = msg.data!
     const castAddBody = data.castAddBody!
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
-      timestamp: new Date(timestamp),
+      timestamp: farcasterTimeToDate(data.timestamp),
       fid: data.fid,
       parentFid: castAddBody.parentCastId?.fid,
       hash: msg.hash,
@@ -57,10 +57,9 @@ export function formatReactions(msgs: Message[]) {
   return msgs.map((msg) => {
     const data = msg.data!
     const reaction = data.reactionBody!
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
-      timestamp: new Date(timestamp),
+      timestamp: farcasterTimeToDate(data.timestamp),
       fid: data.fid,
       targetCastFid: reaction.targetCastId?.fid,
       type: reaction.type,
@@ -85,10 +84,9 @@ export function formatUserDatas(msgs: Message[]) {
   return Array.from(userDataMap.values()).map((msg) => {
     const data = msg.data!
     const userDataAddBody = data.userDataBody!
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
-      timestamp: new Date(timestamp),
+      timestamp: farcasterTimeToDate(data.timestamp),
       fid: data.fid,
       type: userDataAddBody.type,
       hash: msg.hash,
@@ -101,10 +99,9 @@ export function formatVerifications(msgs: Message[]) {
   return msgs.map((msg) => {
     const data = msg.data!
     const addAddressBody = data.verificationAddAddressBody!
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
-      timestamp: new Date(timestamp),
+      timestamp: farcasterTimeToDate(data.timestamp),
       fid: data.fid,
       hash: msg.hash,
       signerAddress: addAddressBody.address,
@@ -118,14 +115,13 @@ export function formatLinks(msgs: Message[]) {
   return msgs.map((msg) => {
     const data = msg.data!
     const link = data.linkBody!
-    const timestamp = fromFarcasterTime(data.timestamp)._unsafeUnwrap()
 
     return {
-      timestamp: new Date(timestamp),
+      timestamp: farcasterTimeToDate(data.timestamp),
       fid: data.fid,
       targetFid: link.targetFid,
       displayTimestamp: link.displayTimestamp
-        ? new Date(fromFarcasterTime(link.displayTimestamp)._unsafeUnwrap())
+        ? farcasterTimeToDate(link.displayTimestamp)
         : null,
       type: link.type,
       hash: msg.hash,
@@ -133,7 +129,23 @@ export function formatLinks(msgs: Message[]) {
   })
 }
 
-export function breakIntoChunks(array: any[], size: number) {
+export function formatHubs(contacts: ContactInfoContentBody[]) {
+  return contacts.map(
+    (c) =>
+      ({
+        gossipAddress: JSON.stringify(c.gossipAddress),
+        rpcAddress: JSON.stringify(c.rpcAddress),
+        excludedHashes: c.excludedHashes,
+        count: c.count,
+        hubVersion: c.hubVersion,
+        network: c.network.toString(),
+        appVersion: c.appVersion,
+        timestamp: c.timestamp,
+      }) satisfies Insertable<Tables['hubs']>
+  )
+}
+
+export function breakIntoChunks<T>(array: T[], size: number) {
   const chunks = []
   for (let i = 0; i < array.length; i += size) {
     chunks.push(array.slice(i, i + size))
