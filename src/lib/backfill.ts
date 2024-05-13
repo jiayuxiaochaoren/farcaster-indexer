@@ -32,7 +32,7 @@ async function addFidsToBackfillQueue(maxFid?: number) {
     await backfillQueue.add('backfill', { fids: batch })
   }
 
-  log.info('Added fids to queue')
+  log.info(fids,'Added fids to queue')
 }
 
 /**

@@ -13,7 +13,7 @@ const latestEventId = await getLatestEvent()
 
 if (process.argv[2] === '--backfill') {
   // TODO: add better logic for determining if a backfill should run
-  await backfill({ maxFid: 100 })
+  await backfill({maxFid:10})
 
   // Once backfill completes, start subscribing to new events
   let subscriberStarted = false
