@@ -9,8 +9,9 @@ import { subscribe } from './lib/subscriber.js'
 initExpressApp()
 
 if (process.argv[2] === '--backfill') {
-  // TODO: add better logic for determining if a backfill should run
-  await backfill({maxFid:10})
+  await backfill({
+    maxFid: Number(process.env.BACKFILL_MAX_FID) || undefined,
+  })
 
   // Once backfill completes, start subscribing to new events
   let subscriberStarted = false
