@@ -78,7 +78,7 @@ export async function removeCompleteJob() {
   // const removeJobs6 = await streamQueue.clean(300, 10000, "prioritized")
   // const removeJobs7 = await streamQueue.clean(300, 10000, "active")
   // const removeAll = await streamQueue.obliterate()
-
+  
 
   log.info('removeJobs:',await streamQueue.getJobCounts(),removeJobs)
 }
