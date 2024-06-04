@@ -22,9 +22,9 @@ if (process.argv[2] === '--backfill') {
     if (queueSize === 0) {
       subscriberStarted = true
       log.info('Finished backfill')
-      subscribe(await getLatestEvent())
+      // subscribe(await getLatestEvent())
     }
   })
 } else {
-  subscribe(await getLatestEvent())
+  await subscribe(await getLatestEvent())
 }

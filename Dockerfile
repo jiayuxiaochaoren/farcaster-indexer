@@ -1,5 +1,5 @@
 # 基于 Node.js 20 的镜像
-FROM --platform=linux/amd64 node:20.13.0
+FROM --platform=linux/amd64 node:20.13-alpine3.20
 
 # 设置工作目录
 WORKDIR /app

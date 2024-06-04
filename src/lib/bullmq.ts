@@ -24,7 +24,7 @@ export function createWorker<T>(
   return new Worker<T>(name, jobHandler, {
     ...bullMqOptions,
     useWorkerThreads: concurrency > 1,
-    removeOnComplete: { count: 100 },
+    removeOnComplete: {count:10,age:20},
     concurrency,
   })
 }

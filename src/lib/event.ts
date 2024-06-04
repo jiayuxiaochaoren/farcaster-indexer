@@ -31,7 +31,7 @@ import { log } from './logger.js'
 export async function handleEvent(job: Job<Buffer>) {
   const encodedEvent = job.data
   const event = HubEvent.decode(Buffer.from(encodedEvent))
-
+  // console.log(event,'ddffffff')
   switch (event.type) {
     case HubEventType.MERGE_MESSAGE: {
       const msg = event.mergeMessageBody!.message!

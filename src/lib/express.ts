@@ -7,7 +7,7 @@ import express from 'express'
 import { getLatestEvent } from '../api/event.js'
 import { backfillQueue } from './backfill.js'
 import { log } from './logger.js'
-import { streamQueue } from './subscriber.js'
+import { removeCompleteJob, streamQueue } from './subscriber.js'
 
 export function initExpressApp() {
   const app = express()
@@ -32,6 +32,14 @@ export function initExpressApp() {
     return res
       .status(200)
       .json({ latestEventId, latestEventTimestamp, isBackfillActive })
+  })
+
+  app.get('/removeJobs', async (req, res) => {
+    await removeCompleteJob()
+    const cou = await streamQueue.getJobCounts()
+    return res
+      .status(200)
+      .json({ 'message': 'ok','data':cou })
   })
 
   createBullBoard({
